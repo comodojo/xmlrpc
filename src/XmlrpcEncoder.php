@@ -135,7 +135,7 @@ class XmlrpcEncoder {
 	 *
 	 * @throws	XmlrpcException | Exception
 	 */
-	public function encodeCall(string $method, array $data) {
+	public function encodeCall($method, $data) {
 
 		$xml = new SimpleXMLElement(str_replace('__ENCODING__', $this->encoding, $this->call_header));
 
@@ -143,13 +143,21 @@ class XmlrpcEncoder {
 
 		$params = $xml->addChild("params");
 		
-		foreach ($data as $d) {
+		try {
+			
+			foreach ($data as $d) {
 
-			$param = $params->addChild("param");
+				$param = $params->addChild("param");
 
-			$value = $param->addChild("value");
+				$value = $param->addChild("value");
 
-			$this->encodeValue($value, $d);
+				$this->encodeValue($value, $d);
+
+			}
+
+		} catch (XmlrpcException $xe) {
+			
+			throw $xe;
 
 		}
 
@@ -165,7 +173,7 @@ class XmlrpcEncoder {
 	 *
 	 * @return	string	xmlrpc formatted error
 	 */
-	public function encodeError(int $error_code, string $error_message) {
+	public function encodeError($error_code, $error_message) {
 
 		$payload  = '<?xml version="1.0" encoding="'.$this->encoding.'"?>' . "\n";
 		$payload .= "<methodResponse>\n";

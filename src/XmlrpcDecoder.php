@@ -28,6 +28,8 @@ use \Exception;
 
 class XmlrpcDecoder  {
 
+	private $is_fault = false;
+
 	/**
 	 * Decode an xmlrpc response
 	 *
@@ -37,17 +39,25 @@ class XmlrpcDecoder  {
 	 *
 	 * @throws	XmlrpcException
 	 */
-	public function decodeResponse(string $response) {
+	public function decodeResponse($response) {
 
 		$xml_data = simplexml_load_string($response);
-
-		if ( !isset($xml_data->params) ) throw new XmlrpcException("Uncomprensible response");
 
 		$data = array();
 
 		try {
 
-			foreach ($xml_data->params->param as $param) array_push( $data, $this->decodeValue($param->value) );
+			if ( isset($xml_data->fault) ) {
+
+				$this->is_fault = true;
+
+				array_push( $data, $this->decodeValue($xml_data->fault->value) );
+
+			} else if ( isset($xml_data->params) ) {
+
+				foreach ($xml_data->params->param as $param) array_push( $data, $this->decodeValue($param->value) );
+
+			} else throw new XmlrpcException("Uncomprensible response");
 
 		} catch (XmlrpcException $xe) {
 			
@@ -56,6 +66,12 @@ class XmlrpcDecoder  {
 		}
 
 		return $data;
+
+	}
+
+	public function isFault() {
+
+		return $this->is_fault;
 
 	}
 
