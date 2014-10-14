@@ -29,314 +29,332 @@ use \Exception;
 
 class XmlrpcEncoder {
 
-	/**
-	 * Request/Response encoding
-	 *
-	 * @var string
-	 */
-	private $encoding;
-
-	/**
-	 * Response XML header
-	 *
-	 * @var string
-	 */
-	private $response_header = '<?xml version="1.0" encoding="__ENCODING__"?><methodResponse />';
-
-	/**
-	 * Call XML header
-	 *
-	 * @var string
-	 */
-	private $call_header = '<?xml version="1.0" encoding="__ENCODING__"?><methodCall />';
-
-	/**
-	 * Constructor method
-	 */
-	final public function __construct() {
-
-		$this->encoding = defined("XMLRPC_DEFAULT_ENCODING") ? strtolower(XMLRPC_DEFAULT_ENCODING) : 'utf-8';
+    /**
+     * Request/Response encoding
+     *
+     * @var string
+     */
+    private $encoding;
 
-	}
-
-	/**
-	 * Set encoding 
-	 *
-	 * @param	sting	$encoding
-	 * @return	Object	$this 
-	 */
-	final public function setEncoding($encoding) {
+    /**
+     * Response XML header
+     *
+     * @var string
+     */
+    private $response_header = '<?xml version="1.0" encoding="__ENCODING__"?><methodResponse />';
 
-		$this->encoding = strtolower($encoding);
+    /**
+     * Call XML header
+     *
+     * @var string
+     */
+    private $call_header = '<?xml version="1.0" encoding="__ENCODING__"?><methodCall />';
 
-		return $this;
+    private $special_types = array();
 
-	}
+    /**
+     * Constructor method
+     */
+    final public function __construct() {
 
-	/**
-	 * Get encoding 
-	 *
-	 * @return	string
-	 */
-	final public function getEncoding($encoding) {
-
-		return $this->encoding;
-
-	}	
-
-	/**
-	 * Encode an xmlrpc response
-	 *
-	 * It expects a scalar, array or NULL as $data and will try to encode it as a valid xmlrpc response.
-	 *
-	 * @param	mixed	$data
-	 *
-	 * @return	string	xmlrpc formatted response
-	 *
-	 * @throws	XmlrpcException | Exception
-	 */
-	public function encodeResponse($data) {
-
-		$xml = new SimpleXMLElement(str_replace('__ENCODING__', $this->encoding, $this->response_header));
-
-		$params = $xml->addChild("params");
-
-		$param = $params->addChild("param");
-
-		$value = $param->addChild("value");
-
-		try {
-			
-			$this->encodeValue($value, $data);
-
-		} catch (XmlrpcException $xe) {
-			
-			throw $xe;
-
-		} catch (Exception $e) {
-			
-			throw $e;
-
-		}
-
-		return $xml->asXML();
-
-	}
-
-	/**
-	 * Encode an xmlrpc call
-	 *
-	 * It expects an array of values as $data and will try to encode it as a valid xmlrpc call.
-	 *
-	 * @param	string	$method
-	 * @param	array	$data
-	 *
-	 * @return	string	xmlrpc formatted call
-	 *
-	 * @throws	XmlrpcException | Exception
-	 */
-	public function encodeCall($method, $data) {
+        $this->encoding = defined("XMLRPC_DEFAULT_ENCODING") ? strtolower(XMLRPC_DEFAULT_ENCODING) : 'utf-8';
 
-		$xml = new SimpleXMLElement(str_replace('__ENCODING__', $this->encoding, $this->call_header));
+    }
 
-		$xml->addChild("methodName",trim($method));
+    /**
+     * Set encoding 
+     *
+     * @param   sting   $encoding
+     * @return  Object  $this 
+     */
+    final public function setEncoding($encoding) {
 
-		$params = $xml->addChild("params");
-		
-		try {
-			
-			foreach ($data as $d) {
+        $this->encoding = $encoding; //strtolower($encoding);
 
-				$param = $params->addChild("param");
+        return $this;
 
-				$value = $param->addChild("value");
+    }
 
-				$this->encodeValue($value, $d);
+    /**
+     * Get encoding 
+     *
+     * @return  string
+     */
+    final public function getEncoding($encoding) {
 
-			}
-
-		} catch (XmlrpcException $xe) {
-			
-			throw $xe;
-
-		}
+        return $this->encoding;
 
-		return $xml->asXML();
+    }
 
-	}
+    final public function setValueType(&$value, $type) {
 
-	/**
-	 * Encode an xmlrpc error
-	 *
-	 * @param	int		$error_code
-	 * @param	string	$error_message
-	 *
-	 * @return	string	xmlrpc formatted error
-	 */
-	public function encodeError($error_code, $error_message) {
-
-		$payload  = '<?xml version="1.0" encoding="'.$this->encoding.'"?>' . "\n";
-		$payload .= "<methodResponse>\n";
-		$payload .= "  <fault>\n";
-		$payload .= "    <value>\n";
-		$payload .= "      <struct>\n";
-		$payload .= "        <member>\n";
-		$payload .= "          <name>faultCode</name>\n";
-		$payload .= "          <value><int>".$error_code."</int></value>\n";
-		$payload .= "        </member>\n";
-		$payload .= "        <member>\n";
-		$payload .= "          <name>faultString</name>\n";
-		$payload .= "          <value><string>".$error_name."</string></value>\n";
-		$payload .= "        </member>\n";
-		$payload .= "      </struct>\n";
-		$payload .= "    </value>\n";
-		$payload .= "  </fault>\n";
-		$payload .= "</methodResponse>";
+        if ( empty($value) OR !in_array(strtolower($type), array("base64","datetime")) ) throw new XmlrpcException("Invalid value type");
 
-		return $payload;
-
-	}
+        $this->special_types[$value] = strtolower($type);
 
-	/**
-	 * Encode a value into SimpleXMLElement object $xml
-	 *
-	 * @param	SimpleXMLElement	$xml
-	 * @param	string				$value
-	 *
-	 * @throws	XmlrpcException
-	 */
-	private function encodeValue(SimpleXMLElement $xml, $value) {
+        return $this;
 
-		if ( $value === NULL ) {
+    }
 
-			$xml->addChild("nil");
+    /**
+     * Encode an xmlrpc response
+     *
+     * It expects a scalar, array or NULL as $data and will try to encode it as a valid xmlrpc response.
+     *
+     * @param   mixed   $data
+     *
+     * @return  string  xmlrpc formatted response
+     *
+     * @throws  XmlrpcException | Exception
+     */
+    public function encodeResponse($data) {
 
-		} else if ( is_array($value) ) {
-			
-			if ( !$this->catchStruct($value) ) $this->encodeArray($xml, $value);
+        $xml = new SimpleXMLElement(str_replace('__ENCODING__', $this->encoding, $this->response_header));
 
-			else $this->encodeStruct($xml, $value);
+        $params = $xml->addChild("params");
 
-		} else if ( is_bool($value) ) {
+        $param = $params->addChild("param");
+
+        $value = $param->addChild("value");
+
+        try {
+            
+            $this->encodeValue($value, $data);
+
+        } catch (XmlrpcException $xe) {
+            
+            throw $xe;
 
-			$xml->addChild("boolean", $value ? 1 : 0);
+        } catch (Exception $e) {
+            
+            throw $e;
 
-		} else if ( is_double($value) ) {
+        }
+
+        return $xml->asXML();
+
+    }
+
+    /**
+     * Encode an xmlrpc call
+     *
+     * It expects an array of values as $data and will try to encode it as a valid xmlrpc call.
+     *
+     * @param   string  $method
+     * @param   array   $data
+     *
+     * @return  string  xmlrpc formatted call
+     *
+     * @throws  XmlrpcException | Exception
+     */
+    public function encodeCall($method, $data) {
 
-			$xml->addChild("double", $value);
+        $xml = new SimpleXMLElement(str_replace('__ENCODING__', $this->encoding, $this->call_header));
 
-		} else if ( is_integer($value) ) {
-			
-			$xml->addChild("int", $value);
+        $xml->addChild("methodName",trim($method));
 
-		} else if ( is_object($value) ) {
+        $params = $xml->addChild("params");
+        
+        try {
+            
+            foreach ($data as $d) {
 
-			$this->encodeObject($xml, $value);
+                $param = $params->addChild("param");
 
-		} else if ( is_string($value) ) {
+                $value = $param->addChild("value");
 
-			$xml->addChild("string", htmlspecialchars($value, ENT_XML1, $this->encoding));
+                $this->encodeValue($value, $d);
 
-		} else throw new XmlrpcException("Unknown type for encoding");
-		
-	}
+            }
 
-	/**
-	 * Encode an array into SimpleXMLElement object $xml
-	 *
-	 * @param	SimpleXMLElement	$xml
-	 * @param	string				$value
-	 */
-	private function encodeArray(SimpleXMLElement $xml, $value) {
-		
-		$array = $xml->addChild("array");
-		
-		$data = $array->addChild("data");
-		
-		foreach ($value as $entry) {
-		
-			$val = $data->addChild("value");
+        } catch (XmlrpcException $xe) {
+            
+            throw $xe;
 
-			$this->encodeValue($val, $entry);
+        }
 
-		}
+        return $xml->asXML();
 
-	}
+    }
 
-	/**
-	 * Encode an object into SimpleXMLElement object $xml
-	 *
-	 * @param	SimpleXMLElement	$xml
-	 * @param	string				$value
-	 *
-	 * @throws	XmlrpcException
-	 */
-	private function encodeObject(SimpleXMLElement $xml, $value) {
+    /**
+     * Encode an xmlrpc error
+     *
+     * @param   int     $error_code
+     * @param   string  $error_message
+     *
+     * @return  string  xmlrpc formatted error
+     */
+    public function encodeError($error_code, $error_message) {
 
-		if ($value instanceof DataObject) {
+        $payload  = '<?xml version="1.0" encoding="'.$this->encoding.'"?>' . "\n";
+        $payload .= "<methodResponse>\n";
+        $payload .= "  <fault>\n";
+        $payload .= "    <value>\n";
+        $payload .= "      <struct>\n";
+        $payload .= "        <member>\n";
+        $payload .= "          <name>faultCode</name>\n";
+        $payload .= "          <value><int>".$error_code."</int></value>\n";
+        $payload .= "        </member>\n";
+        $payload .= "        <member>\n";
+        $payload .= "          <name>faultString</name>\n";
+        $payload .= "          <value><string>".$error_name."</string></value>\n";
+        $payload .= "        </member>\n";
+        $payload .= "      </struct>\n";
+        $payload .= "    </value>\n";
+        $payload .= "  </fault>\n";
+        $payload .= "</methodResponse>";
 
-			$this->encodeValue($xml, $value->export());
+        return $payload;
 
-		} else if ($value instanceof DateTime) {
+    }
 
-			$xml->addChild("dateTime.iso8601", $this->timestampToIso8601Time($value->format('U')));
+    /**
+     * Encode a value into SimpleXMLElement object $xml
+     *
+     * @param   SimpleXMLElement    $xml
+     * @param   string              $value
+     *
+     * @throws  XmlrpcException
+     */
+    private function encodeValue(SimpleXMLElement $xml, $value) {
 
-		} else throw new XmlrpcException("Unknown type for encoding");
-		
-	}
+        if ( $value === NULL ) {
 
-	/**
-	 * Encode a struct into SimpleXMLElement object $xml
-	 *
-	 * @param	SimpleXMLElement	$xml
-	 * @param	string				$value
-	 *
-	 * @throws	XmlrpcException
-	 */
-	private function encodeStruct(SimpleXMLElement $xml, $value) {
+            $xml->addChild("nil");
 
-		$struct = $xml->addChild("struct");
+        } else if ( is_array($value) ) {
+            
+            if ( !$this->catchStruct($value) ) $this->encodeArray($xml, $value);
 
-		foreach ($value as $k => $v) {
+            else $this->encodeStruct($xml, $value);
 
-			$member = $struct->addChild("member");
+        } else if ( @array_key_exists($value, $this->special_types) ) {
 
-			$member->addChild("name", $k);
+            if ( $this->special_types[$value] == "base64" ) $xml->addChild("base64", $value);
 
-			$val = $member->addChild("value");
+            else $xml->addChild("dateTime.iso8601", $this->timestampToIso8601Time($value));
 
-			$this->encodeValue($val, $v);
+        } else if ( is_bool($value) ) {
 
-		}
+            $xml->addChild("boolean", $value ? 1 : 0);
 
-	}
+        } else if ( is_double($value) ) {
 
-	/**
-	 * Return true if $value is a struct, false otherwise
-	 *
-	 * @param	mixed	$value
-	 *
-	 * @return	bool
-	 */
-	private function catchStruct($value) {
+            $xml->addChild("double", $value);
 
-		for ( $i = 0; $i < count($value); $i++ ) if ( !array_key_exists($i, $value) ) return true;
+        } else if ( is_integer($value) ) {
+            
+            $xml->addChild("int", $value);
 
-		return false;
+        } else if ( is_object($value) ) {
 
-	}
+            $this->encodeObject($xml, $value);
 
-	/**
-	 * Convert timestamp to Iso8601
-	 *
-	 * @param	int		$timestamp
-	 *
-	 * @return	string	Iso8601 formatted date
-	 */
-	private function timestampToIso8601Time($timestamp) {
-	
-		return date("Ymd\TH:i:s", $timestamp);
+        } else if ( is_string($value) ) {
 
-	}
+            $xml->addChild("string", htmlspecialchars($value, ENT_XML1, $this->encoding));
+
+        } else throw new XmlrpcException("Unknown type for encoding");
+        
+    }
+
+    /**
+     * Encode an array into SimpleXMLElement object $xml
+     *
+     * @param   SimpleXMLElement    $xml
+     * @param   string              $value
+     */
+    private function encodeArray(SimpleXMLElement $xml, $value) {
+        
+        $array = $xml->addChild("array");
+        
+        $data = $array->addChild("data");
+        
+        foreach ($value as $entry) {
+        
+            $val = $data->addChild("value");
+
+            $this->encodeValue($val, $entry);
+
+        }
+
+    }
+
+    /**
+     * Encode an object into SimpleXMLElement object $xml
+     *
+     * @param   SimpleXMLElement    $xml
+     * @param   string              $value
+     *
+     * @throws  XmlrpcException
+     */
+    private function encodeObject(SimpleXMLElement $xml, $value) {
+
+        if ($value instanceof DataObject) {
+
+            $this->encodeValue($xml, $value->export());
+
+        } else if ($value instanceof DateTime) {
+
+            $xml->addChild("dateTime.iso8601", $this->timestampToIso8601Time($value->format('U')));
+
+        } else throw new XmlrpcException("Unknown type for encoding");
+        
+    }
+
+    /**
+     * Encode a struct into SimpleXMLElement object $xml
+     *
+     * @param   SimpleXMLElement    $xml
+     * @param   string              $value
+     *
+     * @throws  XmlrpcException
+     */
+    private function encodeStruct(SimpleXMLElement $xml, $value) {
+
+        $struct = $xml->addChild("struct");
+
+        foreach ($value as $k => $v) {
+
+            $member = $struct->addChild("member");
+
+            $member->addChild("name", $k);
+
+            $val = $member->addChild("value");
+
+            $this->encodeValue($val, $v);
+
+        }
+
+    }
+
+    /**
+     * Return true if $value is a struct, false otherwise
+     *
+     * @param   mixed   $value
+     *
+     * @return  bool
+     */
+    private function catchStruct($value) {
+
+        for ( $i = 0; $i < count($value); $i++ ) if ( !array_key_exists($i, $value) ) return true;
+
+        return false;
+
+    }
+
+    /**
+     * Convert timestamp to Iso8601
+     *
+     * @param   int     $timestamp
+     *
+     * @return  string  Iso8601 formatted date
+     */
+    private function timestampToIso8601Time($timestamp) {
+    
+        return date("Ymd\TH:i:s", $timestamp);
+
+    }
 
 }
