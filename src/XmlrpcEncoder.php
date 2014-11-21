@@ -225,7 +225,7 @@ class XmlrpcEncoder {
 
         } else if ( is_array($value) ) {
             
-            if ( !$this->catchStruct($value) ) $this->encodeArray($xml, $value);
+            if ( !self::catchStruct($value) ) $this->encodeArray($xml, $value);
 
             else $this->encodeStruct($xml, $value);
 
@@ -233,7 +233,7 @@ class XmlrpcEncoder {
 
             if ( $this->special_types[$value] == "base64" ) $xml->addChild("base64", $value);
 
-            else $xml->addChild("dateTime.iso8601", $this->timestampToIso8601Time($value));
+            else $xml->addChild("dateTime.iso8601", self::timestampToIso8601Time($value));
 
         } else if ( is_bool($value) ) {
 
@@ -253,7 +253,17 @@ class XmlrpcEncoder {
 
         } else if ( is_string($value) ) {
 
-            $xml->addChild("string", htmlspecialchars($value, ENT_XML1, $this->encoding));
+            if ( version_compare(PHP_VERSION, '5.4.0', '<') ) {
+
+                $htmlspecials = self::xml1_sanitize($value);
+
+                $encoded_string = mb_convert_encoding($htmlspecials, $this->encoding);
+
+                $xml->addChild("string", $encoded_string);
+
+            }
+
+            else $xml->addChild("string", htmlspecialchars($value, ENT_XML1, $this->encoding));
 
         } else throw new XmlrpcException("Unknown type for encoding");
         
@@ -297,7 +307,7 @@ class XmlrpcEncoder {
 
         } else if ($value instanceof DateTime) {
 
-            $xml->addChild("dateTime.iso8601", $this->timestampToIso8601Time($value->format('U')));
+            $xml->addChild("dateTime.iso8601", self::timestampToIso8601Time($value->format('U')));
 
         } else throw new XmlrpcException("Unknown type for encoding");
         
@@ -336,7 +346,7 @@ class XmlrpcEncoder {
      *
      * @return  bool
      */
-    private function catchStruct($value) {
+    static private function catchStruct($value) {
 
         for ( $i = 0; $i < count($value); $i++ ) if ( !array_key_exists($i, $value) ) return true;
 
@@ -351,10 +361,28 @@ class XmlrpcEncoder {
      *
      * @return  string  Iso8601 formatted date
      */
-    private function timestampToIso8601Time($timestamp) {
+    static private function timestampToIso8601Time($timestamp) {
     
         return date("Ymd\TH:i:s", $timestamp);
 
     }
 
+    /**
+     * PHP < 5.4 replacement for ENT_XML1 flag
+     *
+     * @param   string     $string
+     *
+     * @return  string  
+     */
+    static private function xml1_sanitize($string) {
+
+        return strtr($string, array(
+            '"' => "&quot;",
+            "&" => "&amp;",
+            "'" => "&apos;",
+            "<" => "&lt;",
+            ">" => "&gt;"
+        ));
+
+    }
 }
