@@ -3,6 +3,7 @@
 use \Comodojo\Exception\XmlrpcException;
 use \XMLWriter;
 use \Exception;
+use \DOMDocument;
 
 /** 
  * XML-RPC encoder
@@ -88,7 +89,7 @@ class XmlrpcEncoder {
      */
     final public function setValueType(&$value, $type) {
 
-        if ( empty($value) OR !in_array(strtolower($type), array("base64","datetime")) ) throw new XmlrpcException("Invalid value type");
+        if ( empty($value) OR !in_array(strtolower($type), array("base64","datetime","cdata")) ) throw new XmlrpcException("Invalid value type");
 
         $this->special_types[$value] = strtolower($type);
 
@@ -327,9 +328,28 @@ class XmlrpcEncoder {
 
         else if ( @array_key_exists($value, $this->special_types) ) {
 
-            if ( $this->special_types[$value] == "base64" ) $xml->writeElement("base64", $value);
+            switch ( $this->special_types[$value] ) {
 
-            else $xml->writeElement("dateTime.iso8601", self::timestampToIso8601Time($value));
+                case 'base64':
+                    
+                    $xml->writeElement("base64", $value);
+
+                    break;
+                
+                case 'datetime':
+                    
+                    $xml->writeElement("dateTime.iso8601", self::timestampToIso8601Time($value));
+
+                    break;
+                
+                case 'cdata':
+                    
+                    $xml->writeCData($value);
+
+                    break;
+                
+            }
+
 
         } else if ( is_bool($value) ) {
 
