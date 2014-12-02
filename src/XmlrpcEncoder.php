@@ -3,7 +3,6 @@
 use \Comodojo\Exception\XmlrpcException;
 use \XMLWriter;
 use \Exception;
-use \DOMDocument;
 
 /** 
  * XML-RPC encoder
@@ -11,6 +10,7 @@ use \DOMDocument;
  * Main features:
  * - support for <nil /> and <ex:nil />
  * - implements true, XML compliant, HTML numeric entities conversion
+ * - support for CDATA values
  *
  * @package     Comodojo Spare Parts
  * @author      Marco Giovinazzi <info@comodojo.org>
@@ -41,8 +41,18 @@ class XmlrpcEncoder {
      */
     private $encoding;
 
+    /**
+     * References of special values (base64, datetime, cdata)
+     *
+     * @var array
+     */
     private $special_types = array();
 
+    /**
+     * ex:nil switch (for apache rpc compatibility)
+     *
+     * @var bool
+     */
     private $use_ex_nil = false;
 
     /**
@@ -62,7 +72,7 @@ class XmlrpcEncoder {
      */
     final public function setEncoding($encoding) {
 
-        $this->encoding = $encoding; //strtolower($encoding);
+        $this->encoding = $encoding;
 
         return $this;
 
@@ -307,7 +317,7 @@ class XmlrpcEncoder {
     }
 
     /**
-     * Encode a value into SimpleXMLElement object $xml
+     * Encode a value using XMLWriter object $xml
      *
      * @param   SimpleXMLElement    $xml
      * @param   string              $value
@@ -380,7 +390,7 @@ class XmlrpcEncoder {
     }
 
     /**
-     * Encode an array into SimpleXMLElement object $xml
+     * Encode an array using XMLWriter object $xml
      *
      * @param   SimpleXMLElement    $xml
      * @param   string              $value
@@ -408,7 +418,7 @@ class XmlrpcEncoder {
     }
 
     /**
-     * Encode an object into SimpleXMLElement object $xml
+     * Encode an object using XMLWriter object $xml
      *
      * @param   SimpleXMLElement    $xml
      * @param   string              $value
@@ -426,7 +436,7 @@ class XmlrpcEncoder {
     }
 
     /**
-     * Encode a struct into SimpleXMLElement object $xml
+     * Encode a struct using XMLWriter object $xml
      *
      * @param   SimpleXMLElement    $xml
      * @param   string              $value
@@ -485,6 +495,13 @@ class XmlrpcEncoder {
 
     }
 
+    /**
+     * Recode named entities into numeric ones
+     *
+     * @param   mixed   $matches
+     *
+     * @return  string  Iso8601 formatted date
+     */
     static private function numericEntities($matches) {
 
         static $table = array(
@@ -532,6 +549,7 @@ class XmlrpcEncoder {
             'uacute' => '&#250;', 'ucirc' => '&#251;', 'uuml' => '&#252;', 'yacute' => '&#253;', 'thorn' => '&#254;', 'yuml' => '&#255;'
         );
   
+        // cleanup invalid entities
         return isset( $table[$matches[1]] ) ? $table[$matches[1]] : '';
 
     }
