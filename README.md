@@ -4,7 +4,7 @@ Yet another php xmlrpc decoder/encoder.
 
 Main features:
 
-- support for <nil /> and <ex:nil />
+- support for `nil` and `ex:nil`
 - implements true, XML compliant, HTML numeric entities conversion
 - support for CDATA values
 
@@ -33,15 +33,15 @@ Main features:
 	// Wrap actions in a try/catch block (see below)
 	try {
 
-		// encoder actions
+		/* encoder actions */
 
 	} catch (\Comodojo\Exception\XmlrpcException) {
 
-		// someting goes wrong during encoding
+		/* someting goes wrong during encoding */
 
 	} catch (\Exception) {
 		
-		// generic error
+		/* generic error */
 
 	}
 
@@ -108,11 +108,11 @@ Main features:
 	// Wrap actions in a try/catch block (see below)
 	try {
 
-		// decoder actions
+		/* decoder actions */
 
 	} catch (\Comodojo\Exception\XmlrpcException) {
 
-		// someting goes wrong during decoding
+		/* someting goes wrong during decoding */
 
 	}
 
