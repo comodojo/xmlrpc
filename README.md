@@ -1,4 +1,4 @@
-# comodojo/xmlrpc
+	# comodojo/xmlrpc
 
 Yet another php xmlrpc decoder/encoder.
 
@@ -12,7 +12,7 @@ Main features:
 
 ## Encoding request/response
 
-Create an encoder instance:
+-	Create an encoder instance:
 
 	```php
 	
@@ -47,7 +47,7 @@ Create an encoder instance:
 
 	```
 
-Single call:
+-	single call:
 
 	```php
 	
@@ -55,7 +55,7 @@ Single call:
 
 	```
 
-Multicall:
+-	multicall:
 
 	```php
 	
@@ -66,7 +66,7 @@ Multicall:
 
 	```
 
-Single call success response
+-	single call success response
 
 	```php
 	
@@ -74,7 +74,7 @@ Single call success response
 
 	```
 
-Single call error response
+-	single call error response
 
 	```php
 	
@@ -82,7 +82,7 @@ Single call error response
 
 	```
 
-Multicall success/error (faultString and faultCode should be explicitly declared in $data)
+-	multicall success/error (faultString and faultCode should be explicitly declared in $data)
 
 	```php
 	
@@ -98,7 +98,7 @@ Multicall success/error (faultString and faultCode should be explicitly declared
 
 ## Decoding 
 
-Create a decoder instance:
+-	create a decoder instance:
 
 	```php
 	
@@ -118,7 +118,7 @@ Create a decoder instance:
 
 	```
 
-Decode single call
+-	decode single call
 
 	```php
 	
@@ -126,7 +126,7 @@ Decode single call
 
 	```
 
-Decode multicall
+-	decode multicall
 
 	```php
 	
@@ -134,7 +134,7 @@ Decode multicall
 
 	```
 
-Decode response
+-	decode response
 	
 	```php
 	
