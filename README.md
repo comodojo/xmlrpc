@@ -8,6 +8,18 @@ Main features:
 - implements true, XML compliant, HTML numeric entities conversion
 - support for CDATA values
 
+# Installation
+
+- Using Composer
+
+	Install [composer](https://getcomposer.org/), then:
+
+	`` composer require comodojo/xmlrpc 1.0.* ``
+
+-	Manually
+
+	Download zipball from GitHub, extract it, include `src/XmlrpcEncoder.php`, `src/XmlrpcDecoder.php` and `src/Exception/XmlrpcException.php` in your project.
+
 # Usage
 
 ## Encoding request/response
