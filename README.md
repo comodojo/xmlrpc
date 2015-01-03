@@ -35,11 +35,11 @@ Main features:
 
 		/* encoder actions */
 
-	} catch (\Comodojo\Exception\XmlrpcException) {
+	} catch (\Comodojo\Exception\XmlrpcException $xe) {
 
 		/* someting goes wrong during encoding */
 
-	} catch (\Exception) {
+	} catch (\Exception $e) {
 		
 		/* generic error */
 
@@ -110,7 +110,7 @@ Main features:
 
 		/* decoder actions */
 
-	} catch (\Comodojo\Exception\XmlrpcException) {
+	} catch (\Comodojo\Exception\XmlrpcException $xe) {
 
 		/* someting goes wrong during decoding */
 
