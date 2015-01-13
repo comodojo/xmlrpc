@@ -1,4 +1,4 @@
-# comodojo/xmlrpc
+## comodojo/xmlrpc
 
 Yet another php xmlrpc decoder/encoder.
 
@@ -8,7 +8,7 @@ Main features:
 - implements true, XML compliant, HTML numeric entities conversion
 - support for CDATA values
 
-# Installation
+## Installation
 
 - Using Composer
 
@@ -20,14 +20,11 @@ Main features:
 
 	Download zipball from GitHub, extract it, include `src/XmlrpcEncoder.php`, `src/XmlrpcDecoder.php` and `src/Exception/XmlrpcException.php` in your project.
 
-# Usage
-
-## Encoding request/response
+## Encoding
 
 -	Create an encoder instance:
 
 	```php
-	
 	// create an encoder instance
 	$encoder = new \Comodojo\Xmlrpc\XmlrpcEncoder();
 
@@ -62,7 +59,6 @@ Main features:
 -	single call:
 
 	```php
-	
 	$call = $encoder->encodeCall("my.method", array("user"=>"john", "pass" => "doe")) ;
 
 	```
@@ -70,7 +66,6 @@ Main features:
 -	multicall:
 
 	```php
-	
 	$multicall = $encoder->encodeMulticall( array (
 		"my.method" => array( "user"=>"john", "pass" => "doe" ),
 		"another.method" => array( "value"=>"foo", "param" => "doe" ),
@@ -81,7 +76,6 @@ Main features:
 -	single call success response
 
 	```php
-	
 	$response = $encoder->encodeResponse( array("success"=>true) );
 
 	```
@@ -89,7 +83,6 @@ Main features:
 -	single call error response
 
 	```php
-	
 	$error = $encoder->encodeError( 300, "Invalid parameters" );
 
 	```
@@ -97,7 +90,6 @@ Main features:
 -	multicall success/error (faultString and faultCode should be explicitly declared in $data)
 
 	```php
-	
 	$values = $encoder->encodeResponse( array(
 
 		array("success"=>true),
@@ -108,12 +100,11 @@ Main features:
 
 	```
 
-## Decoding 
+## Decoding
 
 -	create a decoder instance:
 
 	```php
-	
 	// create a decoder instance
 	$decoder = new \Comodojo\Xmlrpc\XmlrpcDecoder();
 	
@@ -133,7 +124,6 @@ Main features:
 -	decode single call
 
 	```php
-	
 	$incoming_call = $decoder->decodeCall( $xml_singlecall_data );
 
 	```
@@ -141,7 +131,6 @@ Main features:
 -	decode multicall
 
 	```php
-	
 	$incoming_multicall = $decoder->decodeMulticall( $xml_multicall_data );
 
 	```
@@ -149,7 +138,6 @@ Main features:
 -	decode response
 	
 	```php
-	
 	$returned_data = $decoder->decodeResponse( $xml_response_data );
 
 	```
