@@ -188,7 +188,7 @@ class XmlrpcEncoder {
      *
      * @throws  XmlrpcException | Exception
      */
-    public function encodeCall($method, $data) {
+    public function encodeCall($method, $data=array()) {
 
         $xml = new XMLWriter(); 
 
