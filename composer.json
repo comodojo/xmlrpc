@@ -1,7 +1,7 @@
 {
     "name": "comodojo/xmlrpc",
     "description": "Yet another php xmlrpc decoder/encoder",
-    "license": "GPL-3.0+",
+    "license": "MIT",
     "type": "library",
     "keywords": [
         "xmlrpc",
