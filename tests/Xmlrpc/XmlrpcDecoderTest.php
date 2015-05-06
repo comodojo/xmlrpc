@@ -35,11 +35,81 @@ class XmlrpcDecoderTest extends \PHPUnit_Framework_TestCase {
         
         $this->assertInternalType('array', $decoded);
 
-        foreach ($decoded[0] as $method) {
+        foreach ($decoded as $method) {
             
             $this->assertContains($method, $methods);      
 
         }
+
+    }
+
+    public function testDecodeErrorResponse() {
+        
+        $decoder = new \Comodojo\Xmlrpc\XmlrpcDecoder();
+
+        $xml_data = file_get_contents(__DIR__."/../resources/methodResponse_error.xml");
+
+        $decoded = $decoder->decodeResponse( $xml_data );
+        
+        $this->assertInternalType('array', $decoded);
+
+        $this->assertTrue($decoder->isFault());
+
+    }
+
+    public function testDecodeMultiCallRequest() {
+
+        $decoder = new \Comodojo\Xmlrpc\XmlrpcDecoder();
+
+        $xml_data = file_get_contents(__DIR__."/../resources/methodCall_systemMulticall.xml");
+
+        $decoded = $decoder->decodeCall( $xml_data );
+
+        $this->assertInternalType('array', $decoded);
+
+        foreach ($decoded as $call) {
+            
+            $this->assertInternalType('array', $call);
+
+        }
+
+    }
+
+    public function testDecodeInvalidMultiCallRequest() {
+
+        $decoder = new \Comodojo\Xmlrpc\XmlrpcDecoder();
+
+        $xml_data = file_get_contents(__DIR__."/../resources/methodCall_invalidSystemMulticall.xml");
+
+        $decoded = $decoder->decodeCall( $xml_data );
+
+        $this->assertInternalType('array', $decoded);
+
+        foreach ($decoded as $index => $call) {
+            
+            if ( $index == 0 ) {
+
+                $this->assertNull($call);
+
+            } else {
+
+                $this->assertInternalType('array', $call);
+
+            }
+
+        }
+
+    }
+
+    public function testDecodeMultiCallResponse() {
+
+        $decoder = new \Comodojo\Xmlrpc\XmlrpcDecoder();
+
+        $xml_data = file_get_contents(__DIR__."/../resources/methodResponse_systemMulticall.xml");
+
+        $decoded = $decoder->decodeResponse( $xml_data );
+        
+        $this->assertInternalType('array', $decoded);
 
     }
 

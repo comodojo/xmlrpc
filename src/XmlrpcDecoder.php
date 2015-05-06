@@ -65,7 +65,7 @@ class XmlrpcDecoder  {
             
         }
 
-        return $data;
+        return isset($data[0]) ? $data[0] : $data;
 
     }
 
@@ -76,7 +76,12 @@ class XmlrpcDecoder  {
     }
 
     /**
-     * Decode an xmlrpc request
+     * Decode an xmlrpc request.
+     *
+     * Can handle a single request or a multicall one.
+     *
+     * WARNING: in case of multicall, it will not throw any exception for an invalid
+     * boxcarred request; a null value will be placed instead of array(method,params).
      *
      * @param   string  $request
      *
@@ -92,19 +97,37 @@ class XmlrpcDecoder  {
             
         $method_name = $this->decodeString($xml_data->methodName[0]);
 
-        $data = array();
+        if ( $method_name == "system.multicall" ) {
 
-        try {
+            try {
         
-            foreach ($xml_data->params->param as $param) $data[] = $this->decodeValue($param->value);
+                $data = $this->multicallDecode($xml_data);
 
-        } catch (XmlrpcException $xe) {
+            } catch (XmlrpcException $xe) {
+                
+                throw $xe;
+
+            }
+
+        } else {
+
+            $parsed = array();
+
+            try {
             
-            throw $xe;
+                foreach ($xml_data->params->param as $param) $parsed[] = $this->decodeValue($param->value);
+
+            } catch (XmlrpcException $xe) {
+                
+                throw $xe;
+
+            }
+
+            $data = array($method_name, $parsed);
 
         }
 
-        return array($method_name, $data);
+        return $data;
 
     }
 
@@ -125,28 +148,16 @@ class XmlrpcDecoder  {
 
         if ( $this->decodeString($xml_data->methodName[0]) != "system.multicall" ) throw new XmlrpcException("Invalid multicall request");
 
-        $data = array();
-
         try {
-
-            foreach ($xml_data->params->param as $param) {
-                
-                $children = $param->value->children();
-
-                $child = $children[0];
-
-                $call = $this->decodeArray($child);
-
-                $data[] = array($call['methodName'], $call['params']);
-
-            }
+        
+            $data = $this->multicallDecode($xml_data);
 
         } catch (XmlrpcException $xe) {
             
             throw $xe;
 
         }
-        
+
         return $data;
 
     }
@@ -316,6 +327,47 @@ class XmlrpcDecoder  {
         }
 
         return $return_value;
+
+    }
+
+    /** 
+     * Decode an XML-RPC multicall request (internal)
+     */
+    private function multicallDecode($xml_data) {
+
+        $data = array();
+
+        try {
+
+            $calls = $xml_data->params->param->value->children();
+
+            $calls_array = $this->decodeArray($calls[0]);
+
+            foreach ($calls_array as $call) {
+                
+                $data[] = ( !isset($call['methodName']) OR !isset($call['params']) ) ? null : array($call['methodName'], $call['params']);
+
+            }
+
+            // foreach ($xml_data->params->param as $param) {
+                
+            //     $children = $param->value->children();
+
+            //     $child = $children[0];
+
+            //     $call = $this->decodeArray($child);
+
+            //     $data[] = array($call[0]['methodName'], $call[0]['params']);
+
+            // }
+
+        } catch (XmlrpcException $xe) {
+            
+            throw $xe;
+
+        }
+        
+        return $data;
 
     }
 

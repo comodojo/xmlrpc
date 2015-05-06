@@ -260,7 +260,7 @@ class XmlrpcEncoder {
 
         }
 
-        return $this->encodeCall("system.multicall", $packed_requests);
+        return $this->encodeCall("system.multicall", array($packed_requests));
 
     }
 
