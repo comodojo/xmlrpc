@@ -8,7 +8,7 @@ use \Exception;
  *
  * @package     Comodojo Spare Parts
  * @author      Marco Giovinazzi <info@comodojo.org>
- * @license     GPL-3.0+
+ * @license     MIT
  *
  * LICENSE:
  * 
