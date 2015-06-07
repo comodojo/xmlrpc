@@ -174,3 +174,15 @@ Main features:
     $returned_data = $decoder->decodeResponse( $xml_response_data );
 
     ```
+
+## Documentation
+
+- [API](https://api.comodojo.org/libs/Comodojo/Xmlrpc.html)
+
+## Contributing
+
+Contributions are welcome and will be fully credited. Please see [CONTRIBUTING](CONTRIBUTING.md) for details.
+
+## License
+
+`` comodojo/xmlrpc `` is released under the MIT License (MIT). Please see [License File](LICENSE) for more information.
