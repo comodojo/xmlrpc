@@ -10,7 +10,7 @@ Have you found a bug? Raise an issues on [Github](https://github.com/comodojo/xm
 
 - **Search the issue or pull request list first**.
 
-- **Check the [master branch](https://github.com/comodojo/xmlrpc)** to see if the bug has already been fixed-
+- **Check the [master branch](https://github.com/comodojo/xmlrpc)** to see if the bug has already been fixed.
 
 ### When submitting your report
 
@@ -20,7 +20,7 @@ Have you found a bug? Raise an issues on [Github](https://github.com/comodojo/xm
 
 ## Pull Request
 
-To perform a Pull Requests on [Github](https://github.com/comodojo/xmlrpc/pull):
+To perform a Pull Requests on [Github](https://github.com/comodojo/xmlrpc/pulls):
 
 - Fork the project.
 

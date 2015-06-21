@@ -1,4 +1,4 @@
-<?php namespace Comodojo\Xmlrpc\Tests;
+<?php
 
 class XmlrpcEncoderTest extends \PHPUnit_Framework_TestCase {
 

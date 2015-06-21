@@ -1,10 +1,11 @@
 <?php namespace Comodojo\Exception;
 
 /**
- * XMLRPC exception handler
+ * XmlrpcException; nothing special, just an extension of
+ * standard Exception class.
  * 
  * @package     Comodojo Spare Parts
- * @author      Marco Giovinazzi <info@comodojo.org>
+ * @author      Marco Giovinazzi <marco.giovinazzi@comodojo.org>
  * @license     MIT
  *
  * LICENSE:
@@ -18,7 +19,4 @@
  * THE SOFTWARE.
  */
 
-/**
- * Simply extend exception
- */
 class XmlrpcException extends \Exception {}

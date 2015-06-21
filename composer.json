@@ -9,14 +9,15 @@
         "decoder",
         "comodojo"
     ],
-    "homepage": "http://www.comodojo.org",
+    "homepage": "http://comodojo.org",
      "support": {
         "issues": "https://github.com/comodojo/xmlrpc/issues"
     },
     "authors": [
         {
             "name": "Marco Giovinazzi",
-            "email": "info@comodojo.org"
+            "email": "marco.giovinazzi@comodojo.org",
+            "homepage": "http://jme.altervista.org"
         }
     ],
     "autoload": {
