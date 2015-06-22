@@ -30,6 +30,7 @@
         "php": ">=5.1.3"
     },
     "require-dev": {
-        "phpunit/phpunit": "~4.0"
+        "phpunit/phpunit": "~4.0",
+        "scrutinizer/ocular": "~1.1"
     }
 }
