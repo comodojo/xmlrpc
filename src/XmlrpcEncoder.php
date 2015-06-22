@@ -94,7 +94,7 @@ class XmlrpcEncoder {
      */
     final public function setValueType(&$value, $type) {
 
-        if ( empty($value) OR !in_array(strtolower($type), array("base64","datetime","cdata")) ) throw new XmlrpcException("Invalid value type");
+        if ( empty($value) OR !in_array(strtolower($type), array("base64", "datetime", "cdata")) ) throw new XmlrpcException("Invalid value type");
 
         $this->special_types[$value] = strtolower($type);
 
@@ -108,7 +108,7 @@ class XmlrpcEncoder {
      * @param   bool    $mode
      * @return  Object  $this 
      */
-    final public function useExNil($mode=true) {
+    final public function useExNil($mode = true) {
 
         $this->use_ex_nil = filter_var($mode, FILTER_VALIDATE_BOOLEAN);
 
@@ -183,7 +183,7 @@ class XmlrpcEncoder {
      *
      * @throws  XmlrpcException | Exception
      */
-    public function encodeCall($method, $data=array()) {
+    public function encodeCall($method, $data = array()) {
 
         $xml = new XMLWriter(); 
 
@@ -195,13 +195,13 @@ class XmlrpcEncoder {
 
         $xml->startElement("methodCall");
 
-            $xml->writeElement("methodName",trim($method));
+            $xml->writeElement("methodName", trim($method));
 
             $xml->startElement("params");
 
             try {
                         
-                foreach ($data as $d) {
+                foreach ( $data as $d ) {
 
                     $xml->startElement("param");
 
@@ -246,7 +246,7 @@ class XmlrpcEncoder {
 
         $packed_requests = array();
 
-        foreach ($data as $methodName => $params) {
+        foreach ( $data as $methodName => $params ) {
             
             array_push($packed_requests, array(
                 "methodName"    =>  $methodName,
@@ -269,7 +269,7 @@ class XmlrpcEncoder {
      */
     public function encodeError($error_code, $error_message) {
 
-        $payload  = '<?xml version="1.0" encoding="'.$this->encoding.'"?>';
+        $payload  = '<?xml version="1.0" encoding="' . $this->encoding . '"?>';
         $payload .= "<methodResponse>";
         $payload .= $this->encodeFault($error_code, $error_message);
         $payload .= "</methodResponse>";
@@ -297,11 +297,11 @@ class XmlrpcEncoder {
         $payload .= "<struct>";
         $payload .= "<member>";
         $payload .= "<name>faultCode</name>";
-        $payload .= "<value><int>".$error_code."</int></value>";
+        $payload .= "<value><int>" . $error_code . "</int></value>";
         $payload .= "</member>";
         $payload .= "<member>";
         $payload .= "<name>faultString</name>";
-        $payload .= "<value><string>".$string."</string></value>";
+        $payload .= "<value><string>" . $string . "</string></value>";
         $payload .= "</member>";
         $payload .= "</struct>";
         $payload .= "</value>";
@@ -321,7 +321,7 @@ class XmlrpcEncoder {
      */
     private function encodeValue(XMLWriter $xml, $value) {
 
-        if ( $value === NULL ) $xml->writeRaw( $this->use_ex_nil === true ? '<ex:nil />' : '<nil />' );
+        if ( $value === NULL ) $xml->writeRaw($this->use_ex_nil === true ? '<ex:nil />' : '<nil />');
 
         else if ( is_array($value) ) {
 
@@ -329,9 +329,7 @@ class XmlrpcEncoder {
 
             else $this->encodeStruct($xml, $value);
 
-        }
-
-        else if ( @array_key_exists($value, $this->special_types) ) {
+        } else if ( @array_key_exists($value, $this->special_types) ) {
 
             switch ( $this->special_types[$value] ) {
 
@@ -378,7 +376,7 @@ class XmlrpcEncoder {
 
             $string = preg_replace_callback('/&([a-zA-Z][a-zA-Z0-9]+);/S', 'self::numericEntities', $value);
 
-            $xml->writeRaw("<string>".$string."</string>");
+            $xml->writeRaw("<string>" . $string . "</string>");
 
         } else throw new XmlrpcException("Unknown type for encoding");
 
@@ -396,7 +394,7 @@ class XmlrpcEncoder {
 
             $xml->startElement("data");
 
-                foreach ($value as $entry) {
+                foreach ( $value as $entry ) {
 
                     $xml->startElement("value");
 
@@ -422,9 +420,9 @@ class XmlrpcEncoder {
      */
     private function encodeObject(XMLWriter $xml, $value) {
 
-        if ($value instanceof DataObject) $this->encodeValue($xml, $value->export());
+        if ( $value instanceof DataObject ) $this->encodeValue($xml, $value->export());
 
-        else if ($value instanceof DateTime) $xml->writeElement("dateTime.iso8601", self::timestampToIso8601Time($value->format('U')));
+        else if ( $value instanceof DateTime ) $xml->writeElement("dateTime.iso8601", self::timestampToIso8601Time($value->format('U')));
 
         else throw new XmlrpcException("Unknown type for encoding");
 
@@ -442,7 +440,7 @@ class XmlrpcEncoder {
 
         $xml->startElement("struct");
 
-        foreach ($value as $k => $v) {
+        foreach ( $value as $k => $v ) {
 
             $xml->startElement("member");
 
@@ -545,7 +543,7 @@ class XmlrpcEncoder {
         );
   
         // cleanup invalid entities
-        return isset( $table[$matches[1]] ) ? $table[$matches[1]] : '';
+        return isset($table[$matches[1]]) ? $table[$matches[1]] : '';
 
     }
 

@@ -21,7 +21,7 @@ use \Exception;
  * THE SOFTWARE.
  */
 
-class XmlrpcDecoder  {
+class XmlrpcDecoder {
 
     private $is_fault = false;
 
@@ -46,11 +46,11 @@ class XmlrpcDecoder  {
 
                 $this->is_fault = true;
 
-                array_push( $data, $this->decodeValue($xml_data->fault->value) );
+                array_push($data, $this->decodeValue($xml_data->fault->value));
 
             } else if ( isset($xml_data->params) ) {
 
-                foreach ($xml_data->params->param as $param) array_push( $data, $this->decodeValue($param->value) );
+                foreach ( $xml_data->params->param as $param ) array_push($data, $this->decodeValue($param->value));
 
             } else throw new XmlrpcException("Uncomprensible response");
 
@@ -110,7 +110,7 @@ class XmlrpcDecoder  {
 
             try {
             
-                foreach ($xml_data->params->param as $param) $parsed[] = $this->decodeValue($param->value);
+                foreach ( $xml_data->params->param as $param ) $parsed[] = $this->decodeValue($param->value);
 
             } catch (XmlrpcException $xe) {
                 
@@ -170,13 +170,13 @@ class XmlrpcDecoder  {
 
         $children = $value->children();
 
-        if (count($children) != 1) throw new XmlrpcException("Cannot decode value: invalid value element");
+        if ( count($children) != 1 ) throw new XmlrpcException("Cannot decode value: invalid value element");
 
         $child = $children[0];
 
         $child_type = $child->getName();
 
-        switch ($child_type) {
+        switch ( $child_type ) {
 
             case "i4":
             case "int":
@@ -258,7 +258,7 @@ class XmlrpcDecoder  {
      */
     private function decodeDouble($double) {
 
-        return (double)($this->decodeString($double));
+        return (double) ($this->decodeString($double));
 
     }
 
@@ -276,7 +276,7 @@ class XmlrpcDecoder  {
      */
     private function decodeString($string) {
 
-        return (string)$string;
+        return (string) $string;
 
     }
 
@@ -296,7 +296,7 @@ class XmlrpcDecoder  {
 
         $return_value = array();
 
-        foreach ($struct->member as $member) {
+        foreach ( $struct->member as $member ) {
 
             $name = $member->name . "";
             $value = $this->decodeValue($member->value);
@@ -315,7 +315,7 @@ class XmlrpcDecoder  {
 
         $return_value = array();
 
-        foreach ($array->data->value as $value) {
+        foreach ( $array->data->value as $value ) {
 
             $return_value[] = $this->decodeValue($value);
 
@@ -338,9 +338,9 @@ class XmlrpcDecoder  {
 
             $calls_array = $this->decodeArray($calls[0]);
 
-            foreach ($calls_array as $call) {
+            foreach ( $calls_array as $call ) {
                 
-                $data[] = ( !isset($call['methodName']) OR !isset($call['params']) ) ? null : array($call['methodName'], $call['params']);
+                $data[] = (!isset($call['methodName']) OR !isset($call['params'])) ? null : array($call['methodName'], $call['params']);
 
             }
 
