@@ -32,7 +32,7 @@ class XmlrpcDecoder {
      *
      * @return  array
      *
-     * @throws  XmlrpcException
+     * @throws  \Comodojo\Exception\XmlrpcException
      */
     public function decodeResponse($response) {
 
@@ -73,16 +73,16 @@ class XmlrpcDecoder {
     /**
      * Decode an xmlrpc request.
      *
-     * Can handle a single request or a multicall one.
+     * Can handle single or multicall requests and return an array of: [method], [data]
      *
      * WARNING: in case of multicall, it will not throw any exception for an invalid
      * boxcarred request; a null value will be placed instead of array(method,params).
      *
      * @param   string  $request
      *
-     * @return  array   ( [method], [data] )
+     * @return  array
      *
-     * @throws  XmlrpcException
+     * @throws  \Comodojo\Exception\XmlrpcException
      */
     public function decodeCall($request) {
 
@@ -133,7 +133,7 @@ class XmlrpcDecoder {
      *
      * @return  array
      *
-     * @throws  XmlrpcException
+     * @throws  \Comodojo\Exception\XmlrpcException
      */
     public function decodeMulticall($request) {
 
@@ -164,7 +164,7 @@ class XmlrpcDecoder {
      *
      * @return  mixed
      *
-     * @throws  XmlrpcException
+     * @throws  \Comodojo\Exception\XmlrpcException
      */
     private function decodeValue($value) {
 
@@ -343,19 +343,7 @@ class XmlrpcDecoder {
                 $data[] = (!isset($call['methodName']) OR !isset($call['params'])) ? null : array($call['methodName'], $call['params']);
 
             }
-
-            // foreach ($xml_data->params->param as $param) {
-                
-            //     $children = $param->value->children();
-
-            //     $child = $children[0];
-
-            //     $call = $this->decodeArray($child);
-
-            //     $data[] = array($call[0]['methodName'], $call[0]['params']);
-
-            // }
-
+            
         } catch (XmlrpcException $xe) {
             
             throw $xe;

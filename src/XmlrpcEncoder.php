@@ -62,8 +62,9 @@ class XmlrpcEncoder {
     /**
      * Set encoding 
      *
-     * @param   sting   $encoding
-     * @return  Object  $this 
+     * @param   string   $encoding
+     *
+     * @return  \Comodojo\Xmlrpc\XmlrpcEncoder
      */
     final public function setEncoding($encoding) {
 
@@ -87,10 +88,10 @@ class XmlrpcEncoder {
     /**
      * Handle base64 and datetime values 
      *
-     * @param   reference   $value  The referenced value
-     * @param   string      $type   The type of value
+     * @param   mixed    $value  The referenced value
+     * @param   string   $type   The type of value
      *
-     * @return  $this
+     * @return  \Comodojo\Xmlrpc\XmlrpcEncoder
      */
     final public function setValueType(&$value, $type) {
 
@@ -106,7 +107,8 @@ class XmlrpcEncoder {
      * Use <ex:nil /> instead of <nil /> (apache xmlrpc compliant)
      *
      * @param   bool    $mode
-     * @return  Object  $this 
+     *
+     * @return  \Comodojo\Xmlrpc\XmlrpcEncoder 
      */
     final public function useExNil($mode = true) {
 
@@ -125,7 +127,8 @@ class XmlrpcEncoder {
      *
      * @return  string  xmlrpc formatted response
      *
-     * @throws  XmlrpcException | Exception
+     * @throws  \Comodojo\Exception\XmlrpcException
+     * @throws  \Exception
      */
     public function encodeResponse($data) {
 
@@ -181,7 +184,8 @@ class XmlrpcEncoder {
      *
      * @return  string  xmlrpc formatted call
      *
-     * @throws  XmlrpcException | Exception
+     * @throws  \Comodojo\Exception\XmlrpcException
+     * @throws  \Exception
      */
     public function encodeCall($method, $data = array()) {
 
@@ -240,7 +244,8 @@ class XmlrpcEncoder {
      *
      * @return  string  xmlrpc formatted call
      *
-     * @throws  XmlrpcException | Exception
+     * @throws  \Comodojo\Exception\XmlrpcException
+     * @throws  \Exception
      */
     public function encodeMulticall($data) {
 
@@ -317,7 +322,7 @@ class XmlrpcEncoder {
      * @param   SimpleXMLElement    $xml
      * @param   string              $value
      *
-     * @throws  XmlrpcException
+     * @throws  \Comodojo\Exception\XmlrpcException
      */
     private function encodeValue(XMLWriter $xml, $value) {
 
@@ -385,8 +390,8 @@ class XmlrpcEncoder {
     /**
      * Encode an array using XMLWriter object $xml
      *
-     * @param   SimpleXMLElement    $xml
-     * @param   string              $value
+     * @param   \SimpleXMLElement    $xml
+     * @param   string               $value
      */
     private function encodeArray(XMLWriter $xml, $value) {
 
@@ -413,10 +418,10 @@ class XmlrpcEncoder {
     /**
      * Encode an object using XMLWriter object $xml
      *
-     * @param   SimpleXMLElement    $xml
-     * @param   string              $value
+     * @param   \SimpleXMLElement    $xml
+     * @param   string               $value
      *
-     * @throws  XmlrpcException
+     * @throws  \Comodojo\Exception\XmlrpcException
      */
     private function encodeObject(XMLWriter $xml, $value) {
 
@@ -431,10 +436,10 @@ class XmlrpcEncoder {
     /**
      * Encode a struct using XMLWriter object $xml
      *
-     * @param   SimpleXMLElement    $xml
-     * @param   string              $value
+     * @param   \SimpleXMLElement    $xml
+     * @param   string               $value
      *
-     * @throws  XmlrpcException
+     * @throws  \Comodojo\Exception\XmlrpcException
      */
     private function encodeStruct(XMLWriter $xml, $value) {
 

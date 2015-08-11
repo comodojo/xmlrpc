@@ -1,6 +1,6 @@
 # comodojo/xmlrpc
 
-[![Build Status](https://api.travis-ci.org/comodojo/xmlrpc.png)](http://travis-ci.org/comodojo/xmlrpc) [![Latest Stable Version](https://poser.pugx.org/comodojo/xmlrpc/v/stable)](https://packagist.org/packages/comodojo/xmlrpc) [![Total Downloads](https://poser.pugx.org/comodojo/xmlrpc/downloads)](https://packagist.org/packages/comodojo/xmlrpc) [![Latest Unstable Version](https://poser.pugx.org/comodojo/xmlrpc/v/unstable)](https://packagist.org/packages/comodojo/xmlrpc) [![License](https://poser.pugx.org/comodojo/xmlrpc/license)](https://packagist.org/packages/comodojo/xmlrpc)
+[![Build Status](https://api.travis-ci.org/comodojo/xmlrpc.png)](http://travis-ci.org/comodojo/xmlrpc) [![Latest Stable Version](https://poser.pugx.org/comodojo/xmlrpc/v/stable)](https://packagist.org/packages/comodojo/xmlrpc) [![Total Downloads](https://poser.pugx.org/comodojo/xmlrpc/downloads)](https://packagist.org/packages/comodojo/xmlrpc) [![Latest Unstable Version](https://poser.pugx.org/comodojo/xmlrpc/v/unstable)](https://packagist.org/packages/comodojo/xmlrpc) [![License](https://poser.pugx.org/comodojo/xmlrpc/license)](https://packagist.org/packages/comodojo/xmlrpc) [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/comodojo/xmlrpc/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/comodojo/xmlrpc/?branch=master) [![Code Coverage](https://scrutinizer-ci.com/g/comodojo/xmlrpc/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/comodojo/xmlrpc/?branch=master)
 
 Yet another php xmlrpc decoder/encoder.
 
