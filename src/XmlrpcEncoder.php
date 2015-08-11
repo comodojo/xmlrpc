@@ -239,7 +239,6 @@ class XmlrpcEncoder {
      * It expects in input a key->val array where key
      * represent the method and val the parameters.
      *
-     * @param   string  $method
      * @param   array   $data
      *
      * @return  string  xmlrpc formatted call
@@ -274,7 +273,7 @@ class XmlrpcEncoder {
      */
     public function encodeError($error_code, $error_message) {
 
-        $payload  = '<?xml version="1.0" encoding="' . $this->encoding . '"?>';
+        $payload  = '<?xml version="1.0" encoding="'.$this->encoding.'"?>';
         $payload .= "<methodResponse>";
         $payload .= $this->encodeFault($error_code, $error_message);
         $payload .= "</methodResponse>";
@@ -302,11 +301,11 @@ class XmlrpcEncoder {
         $payload .= "<struct>";
         $payload .= "<member>";
         $payload .= "<name>faultCode</name>";
-        $payload .= "<value><int>" . $error_code . "</int></value>";
+        $payload .= "<value><int>".$error_code."</int></value>";
         $payload .= "</member>";
         $payload .= "<member>";
         $payload .= "<name>faultString</name>";
-        $payload .= "<value><string>" . $string . "</string></value>";
+        $payload .= "<value><string>".$string."</string></value>";
         $payload .= "</member>";
         $payload .= "</struct>";
         $payload .= "</value>";
@@ -319,14 +318,14 @@ class XmlrpcEncoder {
     /**
      * Encode a value using XMLWriter object $xml
      *
-     * @param   SimpleXMLElement    $xml
+     * @param   XMLWriter    $xml
      * @param   string              $value
      *
      * @throws  \Comodojo\Exception\XmlrpcException
      */
     private function encodeValue(XMLWriter $xml, $value) {
 
-        if ( $value === NULL ) $xml->writeRaw($this->use_ex_nil === true ? '<ex:nil />' : '<nil />');
+        if ( $value === null ) $xml->writeRaw($this->use_ex_nil === true ? '<ex:nil />' : '<nil />');
 
         else if ( is_array($value) ) {
 
@@ -381,7 +380,7 @@ class XmlrpcEncoder {
 
             $string = preg_replace_callback('/&([a-zA-Z][a-zA-Z0-9]+);/S', 'self::numericEntities', $value);
 
-            $xml->writeRaw("<string>" . $string . "</string>");
+            $xml->writeRaw("<string>".$string."</string>");
 
         } else throw new XmlrpcException("Unknown type for encoding");
 
@@ -390,7 +389,7 @@ class XmlrpcEncoder {
     /**
      * Encode an array using XMLWriter object $xml
      *
-     * @param   \SimpleXMLElement    $xml
+     * @param   XMLWriter    $xml
      * @param   string               $value
      */
     private function encodeArray(XMLWriter $xml, $value) {
@@ -418,7 +417,7 @@ class XmlrpcEncoder {
     /**
      * Encode an object using XMLWriter object $xml
      *
-     * @param   \SimpleXMLElement    $xml
+     * @param   XMLWriter    $xml
      * @param   string               $value
      *
      * @throws  \Comodojo\Exception\XmlrpcException
@@ -436,7 +435,7 @@ class XmlrpcEncoder {
     /**
      * Encode a struct using XMLWriter object $xml
      *
-     * @param   \SimpleXMLElement    $xml
+     * @param   XMLWriter    $xml
      * @param   string               $value
      *
      * @throws  \Comodojo\Exception\XmlrpcException

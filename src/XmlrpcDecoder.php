@@ -298,7 +298,7 @@ class XmlrpcDecoder {
 
         foreach ( $struct->member as $member ) {
 
-            $name = $member->name . "";
+            $name = $member->name."";
             $value = $this->decodeValue($member->value);
             $return_value[$name] = $value;
 
@@ -327,6 +327,7 @@ class XmlrpcDecoder {
 
     /** 
      * Decode an XML-RPC multicall request (internal)
+     * @param \SimpleXMLElement $xml_data
      */
     private function multicallDecode($xml_data) {
 
