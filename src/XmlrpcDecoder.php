@@ -25,6 +25,12 @@ class XmlrpcDecoder {
 
     private $is_fault = false;
 
+    public function __construct() {
+
+        libxml_use_internal_errors(true);
+
+    }
+
     /**
      * Decode an xmlrpc response
      *
@@ -37,6 +43,8 @@ class XmlrpcDecoder {
     public function decodeResponse($response) {
 
         $xml_data = simplexml_load_string($response);
+
+        if ( $xml_data === false ) throw new XmlrpcException("Not a valid XMLRPC response");
 
         $data = array();
 
@@ -88,6 +96,8 @@ class XmlrpcDecoder {
 
         $xml_data = simplexml_load_string($request);
 
+        if ( $xml_data === false ) throw new XmlrpcException("Not a valid XMLRPC call");
+
         if ( !isset($xml_data->methodName) ) throw new XmlrpcException("Uncomprensible request");
             
         $method_name = $this->decodeString($xml_data->methodName[0]);
@@ -138,6 +148,8 @@ class XmlrpcDecoder {
     public function decodeMulticall($request) {
 
         $xml_data = simplexml_load_string($request);
+
+        if ( $xml_data === false ) throw new XmlrpcException("Not a valid XMLRPC multicall");
 
         if ( !isset($xml_data->methodName) ) throw new XmlrpcException("Uncomprensible multicall request");
 

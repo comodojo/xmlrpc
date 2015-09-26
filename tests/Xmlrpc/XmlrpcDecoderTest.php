@@ -113,4 +113,17 @@ class XmlrpcDecoderTest extends \PHPUnit_Framework_TestCase {
 
     }
 
+    /**
+     * @expectedException        Comodojo\Exception\XmlrpcException
+     */
+    public function testDecodeInvalidValue() {
+
+        $decoder = new \Comodojo\Xmlrpc\XmlrpcDecoder();
+
+        $xml_data = file_get_contents(__DIR__."/../resources/methodResponse_invalid.xml");
+
+        $decoded = $decoder->decodeResponse( $xml_data );
+
+    }
+
 }
