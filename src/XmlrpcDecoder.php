@@ -353,7 +353,7 @@ class XmlrpcDecoder {
 
             foreach ( $calls_array as $call ) {
                 
-                $data[] = (!isset($call['methodName']) OR !isset($call['params'])) ? null : array($call['methodName'], $call['params']);
+                $data[] = (!isset($call['methodName']) || !isset($call['params'])) ? null : array($call['methodName'], $call['params']);
 
             }
             

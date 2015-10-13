@@ -95,7 +95,7 @@ class XmlrpcEncoder {
      */
     final public function setValueType(&$value, $type) {
 
-        if ( empty($value) OR !in_array(strtolower($type), array("base64", "datetime", "cdata")) ) throw new XmlrpcException("Invalid value type");
+        if ( empty($value) || !in_array(strtolower($type), array("base64", "datetime", "cdata")) ) throw new XmlrpcException("Invalid value type");
 
         $this->special_types[$value] = strtolower($type);
 
@@ -334,7 +334,7 @@ class XmlrpcEncoder {
      * Encode a value using XMLWriter object $xml
      *
      * @param   XMLWriter    $xml
-     * @param   string              $value
+     * @param   mixed        $value
      *
      * @throws  \Comodojo\Exception\XmlrpcException
      */
@@ -372,7 +372,6 @@ class XmlrpcEncoder {
                 
             }
 
-
         } else if ( is_bool($value) ) {
 
             $xml->writeElement("boolean", $value ? 1 : 0);
@@ -405,7 +404,7 @@ class XmlrpcEncoder {
      * Encode an array using XMLWriter object $xml
      *
      * @param   XMLWriter    $xml
-     * @param   string               $value
+     * @param   mixed        $value
      */
     private function encodeArray(XMLWriter $xml, $value) {
 
@@ -433,15 +432,15 @@ class XmlrpcEncoder {
      * Encode an object using XMLWriter object $xml
      *
      * @param   XMLWriter    $xml
-     * @param   string               $value
+     * @param   mixed        $value
      *
      * @throws  \Comodojo\Exception\XmlrpcException
      */
     private function encodeObject(XMLWriter $xml, $value) {
 
-        if ( $value instanceof DataObject ) $this->encodeValue($xml, $value->export());
+        if ( $value instanceof \DataObject ) $this->encodeValue($xml, $value->export());
 
-        else if ( $value instanceof DateTime ) $xml->writeElement("dateTime.iso8601", self::timestampToIso8601Time($value->format('U')));
+        else if ( $value instanceof \DateTime ) $xml->writeElement("dateTime.iso8601", self::timestampToIso8601Time($value->format('U')));
 
         else throw new XmlrpcException("Unknown type for encoding");
 
@@ -451,7 +450,7 @@ class XmlrpcEncoder {
      * Encode a struct using XMLWriter object $xml
      *
      * @param   XMLWriter    $xml
-     * @param   string               $value
+     * @param   mixed        $value
      *
      * @throws  \Comodojo\Exception\XmlrpcException
      */
@@ -486,9 +485,11 @@ class XmlrpcEncoder {
      *
      * @return  bool
      */
-    static private function catchStruct($value) {
+    private static function catchStruct($value) {
 
-        for ( $i = 0; $i < count($value); $i++ ) if ( !array_key_exists($i, $value) ) return true;
+        $values = count($value);
+
+        for ( $i = 0; $i < $values; $i++ ) if ( !array_key_exists($i, $value) ) return true;
 
         return false;
 
@@ -501,7 +502,7 @@ class XmlrpcEncoder {
      *
      * @return  string  Iso8601 formatted date
      */
-    static private function timestampToIso8601Time($timestamp) {
+    private static function timestampToIso8601Time($timestamp) {
     
         return date("Ymd\TH:i:s", $timestamp);
 
@@ -514,7 +515,7 @@ class XmlrpcEncoder {
      *
      * @return  string  Iso8601 formatted date
      */
-    static private function numericEntities($matches) {
+    private static function numericEntities($matches) {
 
         static $table = array(
             'quot' => '&#34;', 'amp' => '&#38;', 'lt' => '&#60;', 'gt' => '&#62;', 'OElig' => '&#338;', 'oelig' => '&#339;',
