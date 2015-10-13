@@ -438,9 +438,7 @@ class XmlrpcEncoder {
      */
     private function encodeObject(XMLWriter $xml, $value) {
 
-        if ( $value instanceof \DataObject ) $this->encodeValue($xml, $value->export());
-
-        else if ( $value instanceof \DateTime ) $xml->writeElement("dateTime.iso8601", self::timestampToIso8601Time($value->format('U')));
+        if ( $value instanceof \DateTime ) $xml->writeElement("dateTime.iso8601", self::timestampToIso8601Time($value->format('U')));
 
         else throw new XmlrpcException("Unknown type for encoding");
 
