@@ -170,7 +170,9 @@ class XmlrpcEncoder {
 
         $xml->endElement();
 
-        return $xml->outputMemory();
+        $xml->endDocument();
+
+        return trim($xml->outputMemory());
 
     }
 
@@ -229,7 +231,9 @@ class XmlrpcEncoder {
 
         $xml->endElement();
 
-        return $xml->outputMemory();
+        $xml->endDocument();
+
+        return trim($xml->outputMemory());
 
     }
 
@@ -251,11 +255,22 @@ class XmlrpcEncoder {
         $packed_requests = array();
 
         foreach ( $data as $methodName => $params ) {
-            
-            array_push($packed_requests, array(
-                "methodName"    =>  $methodName,
-                "params"        =>  $params
-            ));
+
+            if ( is_int($methodName) && count($params) == 2 ) {
+
+                array_push($packed_requests, array(
+                    "methodName"    =>  $params[0],
+                    "params"        =>  $params[1]
+                ));    
+
+            } else {
+
+                array_push($packed_requests, array(
+                    "methodName"    =>  $methodName,
+                    "params"        =>  $params
+                ));
+
+            }
 
         }
 

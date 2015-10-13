@@ -75,6 +75,16 @@ Main features:
 
     ```
 
+    Alternate syntax (duplicated-methods safe):
+
+    ```php
+    $multicall = $encoder->encodeMulticall( array (
+        array( "my.method", array( "user"=>"john", "pass" => "doe" ) ),
+        array( "another.method", array( "value"=>"foo", "param" => "doe" ) )
+    );
+
+    ```
+
 -   single call success response
 
     ```php

@@ -125,4 +125,19 @@ class XmlrpcEncoderTest extends \PHPUnit_Framework_TestCase {
 
     }
 
+    public function testEncodeMultiCallSameMethodBug() {
+
+        $encoder = new \Comodojo\Xmlrpc\XmlrpcEncoder();
+
+        $response = $encoder->encodeMulticall( 
+            array(
+                array("my.method", array( "john")),
+                array("my.method", array( "doe" ))
+            )
+        );
+
+        $this->assertXmlStringEqualsXmlFile(__DIR__."/../resources/methodCall_systemMulticall_same_method_bug.xml", $response);
+
+    }
+
 }
