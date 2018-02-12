@@ -22,7 +22,7 @@
     ],
     "autoload": {
         "psr-4": {
-            "Comodojo\\Xmlrpc\\": "src"
+            "Comodojo\\Xmlrpc\\": "src/Comodojo/Xmlrpc"
         }
     },
     "require": {
