@@ -4,8 +4,6 @@
 
 Yet another php xmlrpc decoder/encoder.
 
-***This is the development branch, please do not use it in production***
-
 Main features:
 
 - support for `nil` and `ex:nil`
