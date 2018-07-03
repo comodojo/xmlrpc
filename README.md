@@ -4,6 +4,8 @@
 
 Yet another php xmlrpc decoder/encoder.
 
+***This is the development branch, please do not use it in production***
+
 Main features:
 
 - support for `nil` and `ex:nil`
@@ -16,11 +18,7 @@ Main features:
 
     Install [composer](https://getcomposer.org/), then:
 
-    `` composer require comodojo/xmlrpc 1.0.* ``
-
--   Manually
-
-    Download zipball from GitHub, extract it, include `src/XmlrpcEncoder.php`, `src/XmlrpcDecoder.php` and `src/Exception/XmlrpcException.php` in your project.
+    `` composer require comodojo/xmlrpc ``
 
 ## Encoding
 
@@ -40,7 +38,7 @@ Main features:
     $encoder->setValueType($data['a_value'], "base64");
     $encoder->setValueType($data['b_value'], "datetime");
     $encoder->setValueType($data['c_value'], "cdata");
-    
+
     // Wrap actions in a try/catch block (see below)
     try {
 
@@ -51,7 +49,7 @@ Main features:
         /* someting goes wrong during encoding */
 
     } catch (\Exception $e) {
-        
+
         /* generic error */
 
     }
@@ -119,7 +117,7 @@ Main features:
     ```php
     // create a decoder instance
     $decoder = new \Comodojo\Xmlrpc\XmlrpcDecoder();
-    
+
     // Wrap actions in a try/catch block (see below)
     try {
 
@@ -179,7 +177,7 @@ Main features:
     ```
 
 -   decode response
-    
+
     ```php
     $returned_data = $decoder->decodeResponse( $xml_response_data );
 
@@ -187,7 +185,7 @@ Main features:
 
 ## Documentation
 
-- [API](https://api.comodojo.org/libs/Comodojo/Xmlrpc.html)
+- [API](https://api.comodojo.org/libs/xmlrpc/)
 
 ## Contributing
 
@@ -196,3 +194,7 @@ Contributions are welcome and will be fully credited. Please see [CONTRIBUTING](
 ## License
 
 `` comodojo/xmlrpc `` is released under the MIT License (MIT). Please see [License File](LICENSE) for more information.
+
+> Copyright (c) 2018 Marco Giovinazzi
+>
+> For more information, visit [comodojo.org](https://comodojo.org).
