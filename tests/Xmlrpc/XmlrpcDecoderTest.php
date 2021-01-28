@@ -1,6 +1,7 @@
 <?php
 
-class XmlrpcDecoderTest extends \PHPUnit_Framework_TestCase {
+use \PHPUnit\Framework\TestCase;
+class XmlrpcDecoderTest extends TestCase {
 
     public function testDecodeMethodCallListMethods() {
         
@@ -10,7 +11,7 @@ class XmlrpcDecoderTest extends \PHPUnit_Framework_TestCase {
 
         $decoded = $decoder->decodeCall( $xml_data );
         
-        $this->assertInternalType('array', $decoded);
+        $this->assertIsArray($decoded);
 
         $this->assertEquals('system.listMethods', $decoded[0]);
 
@@ -33,7 +34,7 @@ class XmlrpcDecoderTest extends \PHPUnit_Framework_TestCase {
 
         $decoded = $decoder->decodeResponse( $xml_data );
         
-        $this->assertInternalType('array', $decoded);
+        $this->assertIsArray($decoded);
 
         foreach ($decoded as $method) {
             
@@ -51,7 +52,7 @@ class XmlrpcDecoderTest extends \PHPUnit_Framework_TestCase {
 
         $decoded = $decoder->decodeResponse( $xml_data );
         
-        $this->assertInternalType('array', $decoded);
+        $this->assertIsArray($decoded);
 
         $this->assertTrue($decoder->isFault());
 
@@ -65,11 +66,11 @@ class XmlrpcDecoderTest extends \PHPUnit_Framework_TestCase {
 
         $decoded = $decoder->decodeCall( $xml_data );
 
-        $this->assertInternalType('array', $decoded);
+        $this->assertIsArray($decoded);
 
         foreach ($decoded as $call) {
             
-            $this->assertInternalType('array', $call);
+            $this->assertIsArray($call);
 
         }
 
@@ -83,7 +84,7 @@ class XmlrpcDecoderTest extends \PHPUnit_Framework_TestCase {
 
         $decoded = $decoder->decodeCall( $xml_data );
 
-        $this->assertInternalType('array', $decoded);
+        $this->assertIsArray($decoded);
 
         foreach ($decoded as $index => $call) {
             
@@ -93,7 +94,7 @@ class XmlrpcDecoderTest extends \PHPUnit_Framework_TestCase {
 
             } else {
 
-                $this->assertInternalType('array', $call);
+                $this->assertIsArray($call);
 
             }
 
@@ -109,14 +110,13 @@ class XmlrpcDecoderTest extends \PHPUnit_Framework_TestCase {
 
         $decoded = $decoder->decodeResponse( $xml_data );
         
-        $this->assertInternalType('array', $decoded);
+        $this->assertIsArray($decoded);
 
     }
 
-    /**
-     * @expectedException        Comodojo\Exception\XmlrpcException
-     */
     public function testDecodeInvalidValue() {
+
+        $this->expectException("\Comodojo\Exception\XmlrpcException");
 
         $decoder = new \Comodojo\Xmlrpc\XmlrpcDecoder();
 

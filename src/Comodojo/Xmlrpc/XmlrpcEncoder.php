@@ -1,8 +1,11 @@
-<?php namespace Comodojo\Xmlrpc;
+<?php
+
+namespace Comodojo\Xmlrpc;
 
 use \Comodojo\Exception\XmlrpcException;
 use \XMLWriter;
 use \Exception;
+use \DateTime;
 
 /** 
  * XML-RPC encoder
@@ -27,51 +30,60 @@ use \Exception;
  * THE SOFTWARE.
  */
 
-class XmlrpcEncoder {
+class XmlrpcEncoder
+{
+
+    /**
+     * Special data types currently supported
+     *
+     * @var array
+     */
+    private const SPECIAL_TYPES = ["base64", "datetime", "cdata"];
 
     /**
      * Request/Response encoding
      *
      * @var string
      */
-    private $encoding;
+    private string $encoding = 'utf-8';
 
     /**
      * References of special values (base64, datetime, cdata)
      *
      * @var array
      */
-    private $special_types = array();
+    private array $special_types = [];
 
     /**
      * ex:nil switch (for apache rpc compatibility)
      *
      * @var bool
      */
-    private $use_ex_nil = false;
+    private bool $use_ex_nil = false;
 
     /**
      * Constructor method
+     * 
+     * @param string $encoding
      */
-    final public function __construct() {
-
-        $this->encoding = defined("XMLRPC_DEFAULT_ENCODING") ? strtolower(XMLRPC_DEFAULT_ENCODING) : 'utf-8';
-
+    public function __construct(string $encoding = null)
+    {
+        $this->setEncoding($encoding);
     }
 
     /**
      * Set encoding 
      *
      * @param   string   $encoding
-     *
-     * @return  \Comodojo\Xmlrpc\XmlrpcEncoder
+     * @return  XmlrpcEncoder
      */
-    final public function setEncoding($encoding) {
-
-        $this->encoding = $encoding;
+    final public function setEncoding(string $encoding = null): XmlrpcEncoder
+    {
+        if (!empty($encoding)) {
+            $this->encoding = strtolower($encoding);
+        }
 
         return $this;
-
     }
 
     /**
@@ -79,10 +91,9 @@ class XmlrpcEncoder {
      *
      * @return  string
      */
-    final public function getEncoding() {
-
+    final public function getEncoding(): string
+    {
         return $this->encoding;
-
     }
 
     /**
@@ -90,17 +101,22 @@ class XmlrpcEncoder {
      *
      * @param   mixed    $value  The referenced value
      * @param   string   $type   The type of value
-     *
-     * @return  \Comodojo\Xmlrpc\XmlrpcEncoder
+     * @return  XmlrpcEncoder
      */
-    final public function setValueType(&$value, $type) {
+    final public function setValueType(&$value, string $type): XmlrpcEncoder
+    {
+        $type = strtolower($type);
 
-        if ( empty($value) || !in_array(strtolower($type), array("base64", "datetime", "cdata")) ) throw new XmlrpcException("Invalid value type");
+        if (
+            empty($value) ||
+            !in_array($type, self::SPECIAL_TYPES)
+        ) {
+            throw new XmlrpcException("Invalid value type");
+        }
 
-        $this->special_types[$value] = strtolower($type);
+        $this->special_types[$value] = $type;
 
         return $this;
-
     }
 
     /**
@@ -108,14 +124,12 @@ class XmlrpcEncoder {
      *
      * @param   bool    $mode
      *
-     * @return  \Comodojo\Xmlrpc\XmlrpcEncoder 
+     * @return  XmlrpcEncoder 
      */
-    final public function useExNil($mode = true) {
-
+    final public function useExNil(bool $mode = true): XmlrpcEncoder
+    {
         $this->use_ex_nil = filter_var($mode, FILTER_VALIDATE_BOOLEAN);
-
         return $this;
-
     }
 
     /**
@@ -124,56 +138,36 @@ class XmlrpcEncoder {
      * It expects a scalar, array or NULL as $data and will try to encode it as a valid xmlrpc response.
      *
      * @param   mixed   $data
-     *
      * @return  string  xmlrpc formatted response
      *
-     * @throws  \Comodojo\Exception\XmlrpcException
-     * @throws  \Exception
+     * @throws  XmlrpcException
+     * @throws  Exception
      */
-    public function encodeResponse($data) {
-
-        $xml = new XMLWriter(); 
+    public function encodeResponse($data): string
+    {
+        $xml = new XMLWriter();
 
         $xml->openMemory();
-
         $xml->setIndent(false);
-
-        $xml->startDocument('1.0', $this->encoding); 
-
+        $xml->startDocument('1.0', $this->encoding);
         $xml->startElement("methodResponse");
+        $xml->startElement("params");
+        $xml->startElement("param");
+        $xml->startElement("value");
 
-            $xml->startElement("params");
-
-                $xml->startElement("param");
-
-                    $xml->startElement("value");
-
-                    try {
-                    
-                        $this->encodeValue($xml, $data);
-
-                    } catch (XmlrpcException $xe) {
-                        
-                        throw $xe;
-
-                    } catch (Exception $e) {
-                        
-                        throw $e;
-
-                    }
-
-                    $xml->endElement();
-
-                $xml->endElement();
-
-            $xml->endElement();
+        try {
+            $this->encodeValue($xml, $data);
+        } catch (Exception $e) {
+            throw $e;
+        }
 
         $xml->endElement();
-
+        $xml->endElement();
+        $xml->endElement();
+        $xml->endElement();
         $xml->endDocument();
 
         return trim($xml->outputMemory());
-
     }
 
     /**
@@ -183,58 +177,39 @@ class XmlrpcEncoder {
      *
      * @param   string  $method
      * @param   array   $data
-     *
      * @return  string  xmlrpc formatted call
      *
-     * @throws  \Comodojo\Exception\XmlrpcException
-     * @throws  \Exception
+     * @throws  XmlrpcException
+     * @throws  Exception
      */
-    public function encodeCall($method, $data = array()) {
-
-        $xml = new XMLWriter(); 
+    public function encodeCall(string $method, array $data = []): string
+    {
+        $xml = new XMLWriter();
 
         $xml->openMemory();
-
         $xml->setIndent(false);
-
-        $xml->startDocument('1.0', $this->encoding); 
-
+        $xml->startDocument('1.0', $this->encoding);
         $xml->startElement("methodCall");
+        $xml->writeElement("methodName", trim($method));
+        $xml->startElement("params");
 
-            $xml->writeElement("methodName", trim($method));
-
-            $xml->startElement("params");
-
-            try {
-                        
-                foreach ( $data as $d ) {
-
-                    $xml->startElement("param");
-
-                        $xml->startElement("value");
-
-                            $this->encodeValue($xml, $d);
-
-                        $xml->endElement();
-
-                    $xml->endElement();
-
-                }
-
-            } catch (XmlrpcException $xe) {
-                        
-                throw $xe;
-
+        try {
+            foreach ($data as $d) {
+                $xml->startElement("param");
+                $xml->startElement("value");
+                $this->encodeValue($xml, $d);
+                $xml->endElement();
+                $xml->endElement();
             }
-
-            $xml->endElement();
+        } catch (XmlrpcException $xe) {
+            throw $xe;
+        }
 
         $xml->endElement();
-
+        $xml->endElement();
         $xml->endDocument();
 
         return trim($xml->outputMemory());
-
     }
 
     /**
@@ -244,38 +219,30 @@ class XmlrpcEncoder {
      * represent the method and val the parameters.
      *
      * @param   array   $data
-     *
      * @return  string  xmlrpc formatted call
      *
-     * @throws  \Comodojo\Exception\XmlrpcException
-     * @throws  \Exception
+     * @throws  XmlrpcException
+     * @throws  Exception
      */
-    public function encodeMulticall($data) {
+    public function encodeMulticall(array $data): string
+    {
+        $packed_requests = [];
 
-        $packed_requests = array();
-
-        foreach ( $data as $methodName => $params ) {
-
-            if ( is_int($methodName) && count($params) == 2 ) {
-
-                array_push($packed_requests, array(
-                    "methodName"    =>  $params[0],
-                    "params"        =>  $params[1]
-                ));    
-
+        foreach ($data as $methodName => $params) {
+            if (is_int($methodName) && count($params) == 2) {
+                array_push($packed_requests, [
+                    "methodName" =>  $params[0],
+                    "params"     =>  $params[1]
+                ]);
             } else {
-
-                array_push($packed_requests, array(
-                    "methodName"    =>  $methodName,
-                    "params"        =>  $params
-                ));
-
+                array_push($packed_requests, [
+                    "methodName" =>  $methodName,
+                    "params"     =>  $params
+                ]);
             }
-
         }
 
-        return $this->encodeCall("system.multicall", array($packed_requests));
-
+        return $this->encodeCall("system.multicall", [$packed_requests]);
     }
 
     /**
@@ -283,18 +250,16 @@ class XmlrpcEncoder {
      *
      * @param   int     $error_code
      * @param   string  $error_message
-     *
      * @return  string  xmlrpc formatted error
      */
-    public function encodeError($error_code, $error_message) {
-
-        $payload  = '<?xml version="1.0" encoding="'.$this->encoding.'"?>';
+    public function encodeError(int $error_code, string $error_message): string
+    {
+        $payload  = '<?xml version="1.0" encoding="' . $this->encoding . '"?>';
         $payload .= "<methodResponse>";
         $payload .= $this->encodeFault($error_code, $error_message);
         $payload .= "</methodResponse>";
 
         return $payload;
-
     }
 
     /**
@@ -302,12 +267,16 @@ class XmlrpcEncoder {
      *
      * @param   int     $error_code
      * @param   string  $error_message
-     *
      * @return  string  xmlrpc formatted error
      */
-    private function encodeFault($error_code, $error_message) {
-
-        $value = htmlentities($error_message, ENT_QUOTES, $this->encoding, false);
+    private function encodeFault(int $error_code, string $error_message): string
+    {
+        $value = htmlentities(
+            $error_message,
+            ENT_QUOTES,
+            $this->encoding,
+            false
+        );
 
         $string = preg_replace_callback('/&([a-zA-Z][a-zA-Z0-9]+);/S', 'self::numericEntities', $value);
 
@@ -316,18 +285,17 @@ class XmlrpcEncoder {
         $payload .= "<struct>";
         $payload .= "<member>";
         $payload .= "<name>faultCode</name>";
-        $payload .= "<value><int>".$error_code."</int></value>";
+        $payload .= "<value><int>$error_code</int></value>";
         $payload .= "</member>";
         $payload .= "<member>";
         $payload .= "<name>faultString</name>";
-        $payload .= "<value><string>".$string."</string></value>";
+        $payload .= "<value><string>$string</string></value>";
         $payload .= "</member>";
         $payload .= "</struct>";
         $payload .= "</value>";
         $payload .= "</fault>";
 
         return $payload;
-
     }
 
     /**
@@ -336,68 +304,53 @@ class XmlrpcEncoder {
      * @param   XMLWriter    $xml
      * @param   mixed        $value
      *
-     * @throws  \Comodojo\Exception\XmlrpcException
+     * @throws  XmlrpcException
      */
-    private function encodeValue(XMLWriter $xml, $value) {
+    private function encodeValue(XMLWriter $xml, $value): void
+    {
+        if ($value === null) {
 
-        if ( $value === null ) $xml->writeRaw($this->use_ex_nil === true ? '<ex:nil />' : '<nil />');
+            $xml->writeRaw($this->use_ex_nil === true ? '<ex:nil />' : '<nil />');
+        } else if (is_array($value)) {
 
-        else if ( is_array($value) ) {
-
-            if ( !self::catchStruct($value) ) $this->encodeArray($xml, $value);
-
-            else $this->encodeStruct($xml, $value);
-
-        } else if ( @array_key_exists($value, $this->special_types) ) {
-
-            switch ( $this->special_types[$value] ) {
-
-                case 'base64':
-                    
-                    $xml->writeElement("base64", $value);
-
-                    break;
-                
-                case 'datetime':
-                    
-                    $xml->writeElement("dateTime.iso8601", self::timestampToIso8601Time($value));
-
-                    break;
-                
-                case 'cdata':
-                    
-                    $xml->writeCData($value);
-
-                    break;
-                
+            if (!self::catchStruct($value)) {
+                $this->encodeArray($xml, $value);
+            } else {
+                $this->encodeStruct($xml, $value);
             }
+        } else if (@array_key_exists($value, $this->special_types)) {
 
-        } else if ( is_bool($value) ) {
+            switch ($this->special_types[$value]) {
+                case 'base64':
+                    $xml->writeElement("base64", $value);
+                    break;
+                case 'datetime':
+                    $xml->writeElement("dateTime.iso8601", self::timestampToIso8601Time($value));
+                    break;
+                case 'cdata':
+                    $xml->writeCData($value);
+                    break;
+            }
+        } else if (is_bool($value)) {
 
             $xml->writeElement("boolean", $value ? 1 : 0);
-
-        } else if ( is_double($value) ) {
+        } else if (is_double($value)) {
 
             $xml->writeElement("double", $value);
+        } else if (is_integer($value)) {
 
-        } else if ( is_integer($value) ) {
-            
             $xml->writeElement("int", $value);
-
-        } else if ( is_object($value) ) {
+        } else if (is_object($value)) {
 
             $this->encodeObject($xml, $value);
-
-        } else if ( is_string($value) ) {
+        } else if (is_string($value)) {
 
             $value = htmlentities($value, ENT_QUOTES, $this->encoding, false);
-
             $string = preg_replace_callback('/&([a-zA-Z][a-zA-Z0-9]+);/S', 'self::numericEntities', $value);
-
-            $xml->writeRaw("<string>".$string."</string>");
-
-        } else throw new XmlrpcException("Unknown type for encoding");
-
+            $xml->writeRaw("<string>$string</string>");
+        } else {
+            throw new XmlrpcException("Unknown type for encoding");
+        }
     }
 
     /**
@@ -406,26 +359,19 @@ class XmlrpcEncoder {
      * @param   XMLWriter    $xml
      * @param   mixed        $value
      */
-    private function encodeArray(XMLWriter $xml, $value) {
-
+    private function encodeArray(XMLWriter $xml, $value): void
+    {
         $xml->startElement("array");
+        $xml->startElement("data");
 
-            $xml->startElement("data");
-
-                foreach ( $value as $entry ) {
-
-                    $xml->startElement("value");
-
-                    $this->encodeValue($xml, $entry);
-
-                    $xml->endElement();
-
-                }
-
+        foreach ($value as $entry) {
+            $xml->startElement("value");
+            $this->encodeValue($xml, $entry);
             $xml->endElement();
+        }
 
         $xml->endElement();
-
+        $xml->endElement();
     }
 
     /**
@@ -434,14 +380,15 @@ class XmlrpcEncoder {
      * @param   XMLWriter    $xml
      * @param   mixed        $value
      *
-     * @throws  \Comodojo\Exception\XmlrpcException
+     * @throws  XmlrpcException
      */
-    private function encodeObject(XMLWriter $xml, $value) {
-
-        if ( $value instanceof \DateTime ) $xml->writeElement("dateTime.iso8601", self::timestampToIso8601Time($value->format('U')));
-
-        else throw new XmlrpcException("Unknown type for encoding");
-
+    private function encodeObject(XMLWriter $xml, $value): void
+    {
+        if ($value instanceof DateTime) {
+            $xml->writeElement("dateTime.iso8601", self::timestampToIso8601Time($value->format('U')));
+        } else {
+            throw new XmlrpcException("Unknown object type to be encoded");
+        }
     }
 
     /**
@@ -450,72 +397,61 @@ class XmlrpcEncoder {
      * @param   XMLWriter    $xml
      * @param   mixed        $value
      *
-     * @throws  \Comodojo\Exception\XmlrpcException
+     * @throws  XmlrpcException
      */
-    private function encodeStruct(XMLWriter $xml, $value) {
-
+    private function encodeStruct(XMLWriter $xml, $value): void
+    {
         $xml->startElement("struct");
 
-        foreach ( $value as $k => $v ) {
-
+        foreach ($value as $k => $v) {
             $xml->startElement("member");
-
-                $xml->writeElement("name", $k);
-
-                $xml->startElement("value");
-
-                    $this->encodeValue($xml, $v);
-
-                $xml->endElement();
-
+            $xml->writeElement("name", $k);
+            $xml->startElement("value");
+            $this->encodeValue($xml, $v);
             $xml->endElement();
-
+            $xml->endElement();
         }
 
         $xml->endElement();
-
     }
 
     /**
      * Return true if $value is a struct, false otherwise
      *
      * @param   mixed   $value
-     *
      * @return  bool
      */
-    private static function catchStruct($value) {
-
+    private static function catchStruct($value): bool
+    {
         $values = count($value);
-
-        for ( $i = 0; $i < $values; $i++ ) if ( !array_key_exists($i, $value) ) return true;
-
+        for ($i = 0; $i < $values; $i++) {
+            if (!array_key_exists($i, $value)) {
+                return true;
+            }
+        }
         return false;
-
     }
 
     /**
      * Convert timestamp to Iso8601
      *
      * @param   int     $timestamp
-     *
      * @return  string  Iso8601 formatted date
      */
-    private static function timestampToIso8601Time($timestamp) {
-    
+    private static function timestampToIso8601Time(int $timestamp): string
+    {
         return date("Ymd\TH:i:s", $timestamp);
-
     }
 
     /**
      * Recode named entities into numeric ones
      *
-     * @param   mixed   $matches
-     *
-     * @return  string  Iso8601 formatted date
+     * @param   array   matches
+     * @return  string 
      */
-    private static function numericEntities($matches) {
-
-        static $table = array(
+    private static function numericEntities(array $matches): string
+    {
+        static $table = [
             'quot' => '&#34;', 'amp' => '&#38;', 'lt' => '&#60;', 'gt' => '&#62;', 'OElig' => '&#338;', 'oelig' => '&#339;',
             'Scaron' => '&#352;', 'scaron' => '&#353;', 'Yuml' => '&#376;', 'circ' => '&#710;', 'tilde' => '&#732;', 'ensp' => '&#8194;',
             'emsp' => '&#8195;', 'thinsp' => '&#8201;', 'zwnj' => '&#8204;', 'zwj' => '&#8205;', 'lrm' => '&#8206;', 'rlm' => '&#8207;',
@@ -558,11 +494,9 @@ class XmlrpcEncoder {
             'icirc' => '&#238;', 'iuml' => '&#239;', 'eth' => '&#240;', 'ntilde' => '&#241;', 'ograve' => '&#242;', 'oacute' => '&#243;',
             'ocirc' => '&#244;', 'otilde' => '&#245;', 'ouml' => '&#246;', 'divide' => '&#247;', 'oslash' => '&#248;', 'ugrave' => '&#249;',
             'uacute' => '&#250;', 'ucirc' => '&#251;', 'uuml' => '&#252;', 'yacute' => '&#253;', 'thorn' => '&#254;', 'yuml' => '&#255;'
-        );
-  
+        ];
+
         // cleanup invalid entities
-        return isset($table[$matches[1]]) ? $table[$matches[1]] : '';
-
+        return $table[$matches[1]] ?? '';
     }
-
 }

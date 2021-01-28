@@ -1,6 +1,8 @@
 <?php
 
-class XmlrpcEncoderTest extends \PHPUnit_Framework_TestCase {
+use \PHPUnit\Framework\TestCase;
+
+class XmlrpcEncoderTest extends TestCase {
 
     public function testEncodeMethodCallListMethods() {
         
