@@ -155,11 +155,7 @@ class XmlrpcEncoder
         $xml->startElement("param");
         $xml->startElement("value");
 
-        try {
-            $this->encodeValue($xml, $data);
-        } catch (Exception $e) {
-            throw $e;
-        }
+        $this->encodeValue($xml, $data);
 
         $xml->endElement();
         $xml->endElement();
@@ -193,16 +189,12 @@ class XmlrpcEncoder
         $xml->writeElement("methodName", trim($method));
         $xml->startElement("params");
 
-        try {
-            foreach ($data as $d) {
-                $xml->startElement("param");
-                $xml->startElement("value");
-                $this->encodeValue($xml, $d);
-                $xml->endElement();
-                $xml->endElement();
-            }
-        } catch (XmlrpcException $xe) {
-            throw $xe;
+        foreach ($data as $d) {
+            $xml->startElement("param");
+            $xml->startElement("value");
+            $this->encodeValue($xml, $d);
+            $xml->endElement();
+            $xml->endElement();
         }
 
         $xml->endElement();
@@ -254,12 +246,10 @@ class XmlrpcEncoder
      */
     public function encodeError(int $error_code, string $error_message): string
     {
-        $payload  = '<?xml version="1.0" encoding="' . $this->encoding . '"?>';
-        $payload .= "<methodResponse>";
-        $payload .= $this->encodeFault($error_code, $error_message);
-        $payload .= "</methodResponse>";
-
-        return $payload;
+        return '<?xml version="1.0" encoding="' . $this->encoding . '"?>' .
+            "<methodResponse>" .
+            $this->encodeFault($error_code, $error_message) .
+            "</methodResponse>";
     }
 
     /**
@@ -280,22 +270,20 @@ class XmlrpcEncoder
 
         $string = preg_replace_callback('/&([a-zA-Z][a-zA-Z0-9]+);/S', 'self::numericEntities', $value);
 
-        $payload = "<fault>";
-        $payload .= "<value>";
-        $payload .= "<struct>";
-        $payload .= "<member>";
-        $payload .= "<name>faultCode</name>";
-        $payload .= "<value><int>$error_code</int></value>";
-        $payload .= "</member>";
-        $payload .= "<member>";
-        $payload .= "<name>faultString</name>";
-        $payload .= "<value><string>$string</string></value>";
-        $payload .= "</member>";
-        $payload .= "</struct>";
-        $payload .= "</value>";
-        $payload .= "</fault>";
-
-        return $payload;
+        return "<fault>" .
+            "<value>" .
+            "<struct>" .
+            "<member>" .
+            "<name>faultCode</name>" .
+            "<value><int>$error_code</int></value>" .
+            "</member>" .
+            "<member>" .
+            "<name>faultString</name>" .
+            "<value><string>$string</string></value>" .
+            "</member>" .
+            "</struct>" .
+            "</value>" .
+            "</fault>";
     }
 
     /**
@@ -332,16 +320,12 @@ class XmlrpcEncoder
                     break;
             }
         } else if (is_bool($value)) {
-
             $xml->writeElement("boolean", $value ? 1 : 0);
         } else if (is_double($value)) {
-
             $xml->writeElement("double", $value);
         } else if (is_integer($value)) {
-
             $xml->writeElement("int", $value);
         } else if (is_object($value)) {
-
             $this->encodeObject($xml, $value);
         } else if (is_string($value)) {
 
