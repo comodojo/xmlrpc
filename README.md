@@ -5,8 +5,6 @@
 
 Yet another php xmlrpc decoder/encoder.
 
-***This is the development branch, please do not use it in production***
-
 Main features:
 
 - support for `nil` and `ex:nil`
@@ -196,6 +194,6 @@ Contributions are welcome and will be fully credited. Please see [CONTRIBUTING](
 
 `` comodojo/xmlrpc `` is released under the MIT License (MIT). Please see [License File](LICENSE) for more information.
 
-> Copyright (c) 2018 Marco Giovinazzi
+> Copyright (c) 2021 Marco Giovinazzi
 >
 > For more information, visit [comodojo.org](https://comodojo.org).
