@@ -37,36 +37,29 @@ class XmlrpcDecoder
      * Decode an xmlrpc response
      *
      * @param   string  $response
-     * @return  array
+     * @return  mixed
      *
      * @throws  XmlrpcException
      */
-    public function decodeResponse(string $response): array
+    public function decodeResponse(string $response)
     {
         $xml_data = simplexml_load_string($response);
 
-        if ($xml_data === false) {
+        if (
+            isset($xml_data->fault) &&
+            property_exists($xml_data->fault, 'value')
+        ) {
+            $this->is_fault = true;
+            return $this->decodeValue($xml_data->fault->value);
+        } else if (
+            isset($xml_data->params) &&
+            sizeof($xml_data->params) === 1 &&
+            property_exists($xml_data->params, 'param')
+        ) {
+            return $this->decodeValue($xml_data->params->param->value);
+        } else {
             throw new XmlrpcException("Not a valid XMLRPC response");
         }
-
-        $data = [];
-
-        if (isset($xml_data->fault)) {
-
-            $this->is_fault = true;
-            array_push($data, $this->decodeValue($xml_data->fault->value));
-
-        } else if (isset($xml_data->params)) {
-
-            foreach ($xml_data->params->param as $param) {
-                array_push($data, $this->decodeValue($param->value));
-            }
-
-        } else {
-            throw new XmlrpcException("Uncomprensible response");
-        }
-
-        return $data[0] ?? $data;
     }
 
     public function isFault()
@@ -309,7 +302,7 @@ class XmlrpcDecoder
         $calls_array = $this->decodeArray($calls[0]);
         foreach ($calls_array as $call) {
             $data[] = (!isset($call['methodName']) || !isset($call['params']))
-            ? null : [$call['methodName'], $call['params']];
+                ? null : [$call['methodName'], $call['params']];
         }
 
         return $data;
